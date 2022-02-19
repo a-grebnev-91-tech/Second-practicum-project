@@ -4,9 +4,11 @@ import java.util.*;
 
 public class Main {
     public static void main(String[] args) {
-        ArrayList<Integer> ints = new ArrayList<>();
-        ints.add(1);
-        Task task = new EpicTask(1, ints, TaskStatus.NEW, "Полить цветы", "Полей уже наконец эти чертовы бегонии");
+        Task task = new Task("g", "Полей уже эти чертовы бегонии");
+        task.setStatus(null);
+        task.setId(-10);
+        task.setName("");
+        task.setDescription(null);
         System.out.println(task);
     }
 }

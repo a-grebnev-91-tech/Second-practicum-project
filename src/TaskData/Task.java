@@ -8,18 +8,23 @@ public class Task {
     protected String description;
 
     public Task(String name, String description) {
+        if (name == null || name.length() < 1)
+            throw new TaskInvalidException("Cannot create unnamed task");
+        if (description == null)
+            description = "";
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
     }
 
     public Task(int id, TaskStatus status, String name, String description) {
+        this(name, description);
         if (status == null)
-            throw new TaskInvalidException("Нельзя создать задачу со статусом null");
+            throw new TaskInvalidException("Cannot create task with null status");
+        if (id < 1)
+            throw new TaskInvalidException("Cannot create task with such ID");
         this.id = id;
         this.status = status;
-        this.name = name;
-        this.description = description;
     }
 
     public String getName() {
@@ -27,7 +32,8 @@ public class Task {
     }
 
     public void setName(String name) {
-        this.name = name;
+        if (name != null && name.length() > 0)
+            this.name = name;
     }
 
     public String getDescription() {
@@ -35,7 +41,7 @@ public class Task {
     }
 
     public void setDescription(String description) {
-        this.description = description;
+        this.description = description != null ? description : "";
     }
 
     public int getId() {
@@ -43,7 +49,8 @@ public class Task {
     }
 
     public void setId(int id) {
-        this.id = id;
+        if (id > 0)
+            this.id = id;
     }
 
     public TaskStatus getStatus() {
@@ -51,7 +58,8 @@ public class Task {
     }
 
     public void setStatus(TaskStatus status) {
-        this.status = status;
+        if (status != null)
+            this.status = status;
     }
 
     @Override

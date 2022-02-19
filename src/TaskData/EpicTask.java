@@ -1,6 +1,7 @@
 package TaskData;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class EpicTask extends Task {
     private final ArrayList<Integer> subtasksID;
@@ -21,7 +22,8 @@ public class EpicTask extends Task {
     }
 
     public void addSubtask(int subtaskID) {
-        subtasksID.add(subtaskID);
+        if (subtaskID > 0)
+            subtasksID.add(subtaskID);
     }
 
     public boolean removeSubtask(int subtaskID) {
@@ -44,10 +46,9 @@ public class EpicTask extends Task {
 
         EpicTask epicTask = (EpicTask) o;
 
-        if (status != epicTask.status) return false;
-        if (name != null ? !name.equals(epicTask.name) : epicTask.name != null) return false;
-        if (description != null ? description.equals(epicTask.description) : epicTask.description == null) return false;
-        return subtasksID != null ? subtasksID.equals(epicTask.subtasksID) : epicTask.subtasksID == null;
+        if (!Objects.equals(subtasksID, epicTask.subtasksID)) return false;
+
+        return true;
     }
 
     @Override

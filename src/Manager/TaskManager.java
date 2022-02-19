@@ -43,7 +43,10 @@ public class TaskManager {
     }
 
     public void removeAllSubtasks() {
-        removeAllSubtasksFromAllEpics();
+        HashSet<Integer> epicsID = new HashSet<>();
+        for (Subtask subtask : subtasks.values()) {
+            epicsID.add(subtask.getEpicTaskID());
+        }
         subtasks.clear();
     }
 
@@ -63,7 +66,9 @@ public class TaskManager {
         if (task == null) {
             return false;
         }
-        else {
+        else if (tasks.containsValue(task)) {
+            return false;
+        } else {
             task.setId(id);
             tasks.put(id++, task);
             return tasks.containsValue(task);
@@ -72,6 +77,8 @@ public class TaskManager {
 
     public boolean createEpicTask(EpicTask epicTask) {
         if (epicTask == null) {
+            return false;
+        } else if (epicTasks.containsValue(epicTask)) {
             return false;
         } else {
             epicTask.setId(id);
@@ -82,11 +89,13 @@ public class TaskManager {
     }
 
     public boolean createSubtask(Subtask subtask) {
-        if (isSubtaskIsValid(subtask)) {
+        if (subtasks.containsValue(subtask)) {
+            return false;
+        } else if (isSubtaskIsValid(subtask)) {
             subtask.setId(id);
             subtasks.put(id, subtask);
-            addSubtaskToEpicTask(subtask);
-
+            if (!addSubtaskToEpicTask(subtask))
+                return false;
             id++;
             return subtasks.containsValue(subtask);
         } else {
@@ -94,17 +103,76 @@ public class TaskManager {
         }
     }
 
-    private void addSubtaskToEpicTask(Subtask subtask) {
-        EpicTask epicTaskForCurrentSubtask = epicTasks.get(subtask.getEpicTaskID());
-        epicTaskForCurrentSubtask.addSubtask(id);
-        updateEpicStatus(epicTaskForCurrentSubtask);
+    public boolean updateTask(Task task) {
+        if (tasks.containsKey(task.getId())) {
+            tasks.put(task.getId(), task);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateEpicTask(EpicTask epicTask) {
+        if (epicTasks.containsKey(epicTask.getId())) {
+            epicTasks.put(epicTask.getId(), epicTask);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean updateSubtask(Subtask subtask) {
+        if (subtasks.containsKey(subtask.getId()) && isSubtaskIsValid(subtask)) {
+            subtasks.put(subtask.getId(), subtask);
+            updateEpicStatus(epicTasks.get(subtask.getEpicTaskID()));
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeTask(Task task) {
+        if (tasks.containsKey(task.getId())) {
+            tasks.remove(task.getId());
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeEpicTask(EpicTask epicTask) {
+        if (epicTasks.containsKey(epicTask.getId())) {
+            epicTasks.remove(epicTask.getId());
+            ArrayList<Integer> subtasksId = epicTask.getSubtasksID();
+            for (Integer subtaskID : subtasksId) {
+                removeSubtask(subtasks.get(subtaskID));
+            }
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public boolean removeSubtask(Subtask subtask) {
+        return false;
+    }
+
+    private boolean addSubtaskToEpicTask(Subtask subtask) {
+        if (subtasks.containsKey(subtask.getId())) {
+            EpicTask epicTaskForCurrentSubtask = epicTasks.get(subtask.getEpicTaskID());
+            epicTaskForCurrentSubtask.addSubtask(id);
+            updateEpicStatus(epicTaskForCurrentSubtask);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     private boolean isSubtaskIsValid(Subtask subtask) {
         return subtask != null && epicTasks.containsKey(subtask.getEpicTaskID()) && subtask.getStatus() != null;
     }
 
-    private void removeAllSubtasksFromAllEpics() {
+    private void clearAllEpicsFromSubtasksID() {
         for (EpicTask epicTask : epicTasks.values()) {
             epicTask.removeAllSubtasks();
             updateEpicStatus(epicTask);
