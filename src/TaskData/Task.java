@@ -1,6 +1,6 @@
 package TaskData;
 
-public class Task {
+public class Task implements Cloneable{
 
     protected int id;
     protected TaskStatus status;
@@ -22,7 +22,7 @@ public class Task {
         if (status == null)
             throw new TaskInvalidException("Cannot create task with null status");
         if (id < 1)
-            throw new TaskInvalidException("Cannot create task with such ID");
+            throw new TaskInvalidException("Cannot create task with ID less than 1");
         this.id = id;
         this.status = status;
     }
@@ -44,11 +44,11 @@ public class Task {
         this.description = description != null ? description : "";
     }
 
-    public int getId() {
+    public int getID() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setID(int id) {
         if (id > 0)
             this.id = id;
     }
@@ -80,6 +80,12 @@ public class Task {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
+    }
+
+    // todo
+    @Override
+    public Task clone() {
+        return new Task(this.id, this.status, this.name, this .description);
     }
 
     @Override

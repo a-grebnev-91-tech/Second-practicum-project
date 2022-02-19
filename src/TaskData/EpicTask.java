@@ -35,7 +35,12 @@ public class EpicTask extends Task {
     }
 
     public ArrayList<Integer> getSubtasksID() {
-        return subtasksID;
+        return new ArrayList<>(subtasksID);
+    }
+
+    @Override
+    public void setStatus(TaskStatus status) {
+        return;
     }
 
     @Override
@@ -56,6 +61,11 @@ public class EpicTask extends Task {
         int result = super.hashCode();
         result = 31 * result + (subtasksID != null ? subtasksID.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public EpicTask clone() {
+        return new EpicTask(this.id, getSubtasksID(), this.status, this.name, this.description);
     }
 
     @Override
