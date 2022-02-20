@@ -63,15 +63,24 @@ public class TaskManager {
     }
 
     public Task getTask(int id) {
-        return tasks.get(id).clone();
+        Task task = tasks.get(id);
+        if (task == null)
+            return null;
+        return task.clone();
     }
 
     public EpicTask getEpicTask(int id) {
-        return epicTasks.get(id);
+        EpicTask task = epicTasks.get(id);
+        if (task == null)
+            return null;
+        return task.clone();
     }
 
     public Subtask getSubtask(int id) {
-        return subtasks.get(id);
+        Subtask task = subtasks.get(id);
+        if (task == null)
+            return null;
+        return task.clone();
     }
 
     public boolean createTask(Task task) {
@@ -79,6 +88,7 @@ public class TaskManager {
             return false;
         } else {
             task.setID(id);
+            task = task.clone();
             tasks.put(id++, task);
             return tasks.containsValue(task);
         }
@@ -90,6 +100,7 @@ public class TaskManager {
         } else {
             epicTask.setID(id);
             updateEpicStatus(epicTask);
+            epicTask = epicTask.clone();
             epicTasks.put(id++, epicTask);
             return epicTasks.containsValue(epicTask);
         }
@@ -100,6 +111,7 @@ public class TaskManager {
             return false;
             if (isSubtaskIsValid(subtask)) {
                 subtask.setID(id);
+                subtask = subtask.clone();
                 subtasks.put(id, subtask);
                 addSubtaskToEpicTask(subtask);
                 id++;
@@ -110,7 +122,7 @@ public class TaskManager {
 
     public boolean updateTask(Task task) {
         if (tasks.containsKey(task.getID())) {
-            tasks.put(task.getID(), task);
+            tasks.put(task.getID(), task.clone());
             return true;
         } else {
             return false;
@@ -119,7 +131,7 @@ public class TaskManager {
 
     public boolean updateEpicTask(EpicTask epicTask) {
         if (epicTasks.containsKey(epicTask.getID())) {
-            epicTasks.put(epicTask.getID(), epicTask);
+            epicTasks.put(epicTask.getID(), epicTask.clone());
             return true;
         } else {
             return false;
@@ -128,6 +140,7 @@ public class TaskManager {
 
     public boolean updateSubtask(Subtask subtask) {
         if (subtasks.containsKey(subtask.getID()) && isSubtaskIsValid(subtask)) {
+            subtask = subtask.clone();
             subtasks.put(subtask.getID(), subtask);
             updateEpicStatus(epicTasks.get(subtask.getEpicTaskID()));
             return true;

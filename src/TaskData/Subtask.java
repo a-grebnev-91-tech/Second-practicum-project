@@ -49,6 +49,11 @@ public class Subtask extends Task {
     }
 
     @Override
+    public Subtask clone() {
+        return new Subtask(this.id, this.epicTaskID, this.status, this.name, this.description);
+    }
+
+    @Override
     public String toString() {
         return "Subtask{" +
                 "id=" + id +

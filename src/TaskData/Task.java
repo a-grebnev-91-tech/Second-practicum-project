@@ -21,8 +21,8 @@ public class Task implements Cloneable{
         this(name, description);
         if (status == null)
             throw new TaskInvalidException("Cannot create task with null status");
-        if (id < 1)
-            throw new TaskInvalidException("Cannot create task with ID less than 1");
+        if (id < 0)
+            throw new TaskInvalidException("Cannot create task with ID less than 0");
         this.id = id;
         this.status = status;
     }
@@ -49,7 +49,7 @@ public class Task implements Cloneable{
     }
 
     public void setID(int id) {
-        if (id > 0)
+        if (id >= 0)
             this.id = id;
     }
 
