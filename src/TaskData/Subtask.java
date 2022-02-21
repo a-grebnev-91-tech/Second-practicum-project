@@ -57,7 +57,7 @@ public class Subtask extends Task {
     public String toString() {
         return "Subtask{" +
                 "id=" + id +
-                ", epicTask=" + epicTaskID +
+                ", epicTaskID=" + epicTaskID +
                 ", status=" + status +
                 ", name='" + name + '\'' +
                 ", description.length()='" + (description != null ? description.length() : null) + '\'' +
