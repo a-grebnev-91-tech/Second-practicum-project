@@ -4,7 +4,12 @@ import TaskData.*;
 public class Main {
     public static void main(String[] args) {
         TaskManager manager = new TaskManager();
+        createSomeTestingTasks(manager);
+        printAllManagerTasks(manager);
 
+    }
+
+    private static void createSomeTestingTasks(TaskManager manager) {
         Task firstTask = new Task("Полить цветы", "Полей ты уже эти чертовы бегонии");
         manager.createTask(firstTask);
         Task secondTask = new Task("Придумать имя новому коту", "Жена скзала, что меховой мешок не подходит!");
@@ -24,16 +29,27 @@ public class Main {
         manager.createEpicTask(secondEpic);
         Subtask subtaskForSecondEpic = new Subtask(secondEpic.getID(), "Уйди в запой", "На неделю");
         manager.createSubtask(subtaskForSecondEpic);
+    }
 
-        System.out.println("firstTask = " + firstTask);
-        System.out.println("secondTask = " + secondTask);
-        System.out.println("firstEpic = " + firstEpic);
-        System.out.println("firstSubtaskFirstEpic = " + firstSubtaskForFirstEpic);
-        System.out.println("secondSubtaskFirstEpic = " + secondSubtaskForFirstEpic);
-        System.out.println("secondEpic = " + secondEpic);
-        System.out.println("subtaskForSecondEpic = " + subtaskForSecondEpic);
-        System.out.println("manager.getTasks() = " + manager.getTasks());
-        System.out.println("manager.getEpicTasks() = " + manager.getEpicTasks());
-        System.out.println("manager.getSubtasks() = " + manager.getSubtasks());
+    private static void printAllManagerTasks(TaskManager manager) {
+        for (Task task : manager.getTasks()) {
+            System.out.println("task = " + task);
+        }
+
+        for (EpicTask epicTask : manager.getEpicTasks()) {
+            System.out.println("epicTask = " + epicTask);
+        }
+
+        for (Subtask subtask : manager.getSubtasks()) {
+            System.out.println("subtask = " + subtask);
+        }
+    }
+
+    // todo подумать над тем, использовать ли 2 метода, или 1
+    private void changeTasksStatus(TaskManager manager) {
+        manager.getTask(1).setStatus(TaskStatus.DONE);
+        manager.getTask(2).setStatus(TaskStatus.IN_PROGRESS);
+        manager.getSubtask(4).setStatus(TaskStatus.DONE);
+        manager.getSubtask(7).setStatus(TaskStatus.IN_PROGRESS);
     }
 }
