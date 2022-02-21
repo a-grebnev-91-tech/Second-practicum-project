@@ -15,14 +15,26 @@ public class Main {
 
     public static void main(String[] args) {
         manager = new TaskManager();
+        printMessage("Создаем задачи");
         createSomeTestingTasks();
         printAllManagerTasks();
+        printMessage("Меняем статусы задач");
         changeSomeTasksStatus();
         printAllManagerTasks();
-        makeDoneOneEpic();
+        printMessage("Делаем один эпик завершенным через завершение сабтасков");
+        makeDoneOneOfEpics();
         printAllManagerTasks();
+        printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике)");
         removeSomeTasks();
         printAllManagerTasks();
+    }
+
+    private static void printMessage(String message) {
+        System.out.println();
+        System.out.println("----------------");
+        System.out.println(message);
+        System.out.println("----------------");
+        System.out.println();
     }
 
     private static void createSomeTestingTasks() {
@@ -48,8 +60,6 @@ public class Main {
     }
 
     private static void printAllManagerTasks() {
-        System.out.println();
-        System.out.println("------------------------------");
         for (Task task : manager.getTasks()) {
             System.out.println("task = " + task);
         }
@@ -77,13 +87,14 @@ public class Main {
         manager.updateSubtask(subtaskForSecondEpic);
     }
 
-    private static void makeDoneOneEpic() {
+    private static void makeDoneOneOfEpics() {
         secondSubtaskForFirstEpic.setStatus(TaskStatus.DONE);
+        manager.updateSubtask(secondSubtaskForFirstEpic);
     }
 
     private static void removeSomeTasks() {
-        manager.removeEpicTask(firstEpic.getID());
+        manager.removeEpicTask(secondEpic.getID());
         manager.removeTask(firstTask.getID());
+        manager.removeSubtask(firstSubtaskForFirstEpic.getID());
     }
-
 }
