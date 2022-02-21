@@ -2,36 +2,50 @@ import Manager.TaskManager;
 import TaskData.*;
 
 public class Main {
-    public static void main(String[] args) {
-        TaskManager manager = new TaskManager();
-        createSomeTestingTasks(manager);
-        printAllManagerTasks(manager);
 
+    private static TaskManager manager;
+
+    private static Task firstTask;
+    private static Task secondTask;
+    private static EpicTask firstEpic;
+    private static EpicTask secondEpic;
+    private static Subtask firstSubtaskForFirstEpic;
+    private static Subtask secondSubtaskForFirstEpic;
+    private static Subtask subtaskForSecondEpic;
+
+    public static void main(String[] args) {
+        manager = new TaskManager();
+        createSomeTestingTasks();
+        printAllManagerTasks();
+        changeSomeTasksStatus();
+        printAllManagerTasks();
     }
 
-    private static void createSomeTestingTasks(TaskManager manager) {
-        Task firstTask = new Task("Полить цветы", "Полей ты уже эти чертовы бегонии");
+    private static void createSomeTestingTasks() {
+        firstTask = new Task("Полить цветы", "Полей ты уже эти чертовы бегонии");
         manager.createTask(firstTask);
-        Task secondTask = new Task("Придумать имя новому коту", "Жена скзала, что меховой мешок не подходит!");
+        secondTask = new Task("Придумать имя новому коту", "Жена скзала, что меховой мешок не подходит!");
         manager.createTask(secondTask);
 
-        EpicTask firstEpic = new EpicTask("Самосовершенствование", "Стань лучшей версией себя");
+        firstEpic = new EpicTask("Самосовершенствование", "Стань лучшей версией себя");
         manager.createEpicTask(firstEpic);
-        Subtask firstSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Изучи Java", "Хоть жаба уродлива и медлительна"
+        firstSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Изучи Java", "Хоть жаба уродлива и медлительна"
                 + ", но кто из нас идеален");
         manager.createSubtask(firstSubtaskForFirstEpic);
-        Subtask secondSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Переведи бабушку через дорогу", "До кучи");
+        secondSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Переведи бабушку через дорогу", "До кучи");
         manager.createSubtask(secondSubtaskForFirstEpic);
 
 
-        EpicTask secondEpic = new EpicTask("Саморазрушение", "Не перетрудись с самосовершенствованием "
+        secondEpic = new EpicTask("Саморазрушение", "Не перетрудись с самосовершенствованием "
                 + "а то еще станешь сверхчеловеком.");
         manager.createEpicTask(secondEpic);
-        Subtask subtaskForSecondEpic = new Subtask(secondEpic.getID(), "Уйди в запой", "На неделю");
+        subtaskForSecondEpic = new Subtask(secondEpic.getID(), "Уйди в запой", "На неделю");
         manager.createSubtask(subtaskForSecondEpic);
     }
 
-    private static void printAllManagerTasks(TaskManager manager) {
+    private static void printAllManagerTasks() {
+        System.out.println();
+        System.out.println("------------------------------");
         for (Task task : manager.getTasks()) {
             System.out.println("task = " + task);
         }
@@ -45,11 +59,20 @@ public class Main {
         }
     }
 
-    // todo подумать над тем, использовать ли 2 метода, или 1
-    private void changeTasksStatus(TaskManager manager) {
-        manager.getTask(1).setStatus(TaskStatus.DONE);
-        manager.getTask(2).setStatus(TaskStatus.IN_PROGRESS);
-        manager.getSubtask(4).setStatus(TaskStatus.DONE);
-        manager.getSubtask(7).setStatus(TaskStatus.IN_PROGRESS);
+    private static void changeSomeTasksStatus() {
+        firstTask.setStatus(TaskStatus.DONE);
+        manager.updateTask(firstTask);
+
+        secondTask.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateTask(secondTask);
+
+        firstSubtaskForFirstEpic.setStatus(TaskStatus.DONE);
+        manager.updateSubtask(firstSubtaskForFirstEpic);
+
+        subtaskForSecondEpic.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateSubtask(subtaskForSecondEpic);
+
+        secondEpic.setStatus(TaskStatus.DONE);
+        manager.updateEpicTask(secondEpic);
     }
 }
