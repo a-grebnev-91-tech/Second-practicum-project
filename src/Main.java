@@ -19,6 +19,10 @@ public class Main {
         printAllManagerTasks();
         changeSomeTasksStatus();
         printAllManagerTasks();
+        makeDoneOneEpic();
+        printAllManagerTasks();
+        removeSomeTasks();
+        printAllManagerTasks();
     }
 
     private static void createSomeTestingTasks() {
@@ -71,8 +75,15 @@ public class Main {
 
         subtaskForSecondEpic.setStatus(TaskStatus.IN_PROGRESS);
         manager.updateSubtask(subtaskForSecondEpic);
-
-        secondEpic.setStatus(TaskStatus.DONE);
-        manager.updateEpicTask(secondEpic);
     }
+
+    private static void makeDoneOneEpic() {
+        secondSubtaskForFirstEpic.setStatus(TaskStatus.DONE);
+    }
+
+    private static void removeSomeTasks() {
+        manager.removeEpicTask(firstEpic.getID());
+        manager.removeTask(firstTask.getID());
+    }
+
 }
