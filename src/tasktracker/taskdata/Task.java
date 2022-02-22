@@ -1,4 +1,4 @@
-package TaskData;
+package tasktracker.taskdata;
 
 public class Task implements Cloneable{
 
@@ -8,7 +8,7 @@ public class Task implements Cloneable{
     protected String description;
 
     public Task(String name, String description) {
-        if (name == null || name.length() < 1)
+        if (name == null || name.isBlank())
             throw new TaskInvalidException("Cannot create unnamed task");
         if (description == null)
             description = "";

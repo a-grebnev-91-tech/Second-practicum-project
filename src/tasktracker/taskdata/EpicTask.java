@@ -1,4 +1,4 @@
-package TaskData;
+package tasktracker.taskdata;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -13,12 +13,16 @@ public class EpicTask extends Task {
 
     public EpicTask(String name, String description, ArrayList<Integer> subtasksID) {
         super(name, description);
-        this.subtasksID = subtasksID != null ? subtasksID : new ArrayList<>();
+        this.subtasksID = new ArrayList<>();
+        if (subtasksID != null)
+            this.subtasksID.addAll(subtasksID);
     }
 
     public EpicTask(int id, ArrayList<Integer> subtasksID, TaskStatus status, String name, String description) {
         super(id, status, name, description );
-        this.subtasksID = subtasksID != null ? subtasksID : new ArrayList<>();
+        this.subtasksID = new ArrayList<>();
+        if (subtasksID != null)
+            this.subtasksID.addAll(subtasksID);
     }
 
     public void addSubtask(int subtaskID) {
