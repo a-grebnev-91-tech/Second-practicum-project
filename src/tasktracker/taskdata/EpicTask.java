@@ -43,26 +43,6 @@ public class EpicTask extends Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        EpicTask epicTask = (EpicTask) o;
-
-        if (!Objects.equals(subtasksID, epicTask.subtasksID)) return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + (subtasksID != null ? subtasksID.hashCode() : 0);
-        return result;
-    }
-
-    @Override
     public EpicTask clone() {
         return new EpicTask(this.id, getSubtasksID(), this.status, this.name, this.description);
     }

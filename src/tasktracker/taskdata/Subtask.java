@@ -31,24 +31,6 @@ public class Subtask extends Task {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-
-        Subtask subtask = (Subtask) o;
-
-        return epicTaskID == subtask.epicTaskID;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = super.hashCode();
-        result = 31 * result + epicTaskID;
-        return result;
-    }
-
-    @Override
     public Subtask clone() {
         return new Subtask(this.id, this.epicTaskID, this.status, this.name, this.description);
     }
