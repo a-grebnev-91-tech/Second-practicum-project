@@ -2,10 +2,7 @@ package tasktracker.manager;
 
 import tasktracker.taskdata.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 public class TaskManager {
 
@@ -118,8 +115,10 @@ public class TaskManager {
     }
 
     // todo подумать над консистентностью, если некоторые сабтаски пропали из эпика
+    // и не исправлено замечнаие по статусу
     public boolean updateEpicTask(EpicTask epicTask) {
         if (isEpicTaskIsValid(epicTask) && epicTasks.containsKey(epicTask.getID())) {
+            removeOrphanedSubtasks(epicTask);
             epicTasks.put(epicTask.getID(), epicTask.clone());
             return true;
         }
@@ -194,6 +193,22 @@ public class TaskManager {
         }
     }
 
+    private void removeOrphanedSubtasks(EpicTask epicTask) {
+        int epicID = epicTask.getID();
+        ArrayList<Integer> epicSubtasksID = epicTask.getSubtasksID();
+        ArrayList<Integer> subtasksIDInMemory = new ArrayList<>();
+        for (Subtask subtaskInMemory : subtasks.values()) {
+            if (subtaskInMemory.getEpicTaskID() == epicID) {
+                subtasksIDInMemory.add(subtaskInMemory.getID());
+            }
+        }
+        for (Integer IDInMemory : subtasksIDInMemory) {
+            if (!(epicSubtasksID.contains(IDInMemory))) {
+                subtasks.remove(IDInMemory);
+            }
+        }
+    }
+
     private boolean isTaskIsValid(Task task) {
         return task != null;
     }
@@ -205,11 +220,12 @@ public class TaskManager {
     private boolean isEpicTaskIsValid(EpicTask epicTask) {
         if (epicTask == null)
             return false;
-        for (Integer id : epicTask.getSubtasksID()) {
+        ArrayList<Integer> subtasksID = epicTask.getSubtasksID();
+        for (Integer id : subtasksID) {
             if (!subtasks.containsKey(id))
                 return false;
         }
-        return true;
+        return epicTask.getStatus() == getEpicStatusBySubtasksID(subtasksID);
     }
 
     private void updateEpicStatus(EpicTask epicTask) {
