@@ -32,7 +32,7 @@ public class Task implements Cloneable{
     }
 
     public void setName(String name) {
-        if (name != null && name.length() > 0)
+        if (name != null && !name.isBlank())
             this.name = name;
     }
 

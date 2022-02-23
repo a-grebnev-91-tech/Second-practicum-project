@@ -114,8 +114,6 @@ public class TaskManager {
         return false;
     }
 
-    // todo подумать над консистентностью, если некоторые сабтаски пропали из эпика
-    // и не исправлено замечнаие по статусу
     public boolean updateEpicTask(EpicTask epicTask) {
         if (isEpicTaskIsValid(epicTask) && epicTasks.containsKey(epicTask.getID())) {
             removeOrphanedSubtasks(epicTask);
