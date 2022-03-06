@@ -1,6 +1,6 @@
 package tasktracker;
 
-import tasktracker.manager.TaskManager;
+import tasktracker.manager.InMemoryTaskManager;
 import tasktracker.taskdata.EpicTask;
 import tasktracker.taskdata.Subtask;
 import tasktracker.taskdata.Task;
@@ -8,7 +8,7 @@ import tasktracker.taskdata.TaskStatus;
 
 public class Main {
 
-    private static TaskManager manager;
+    private static InMemoryTaskManager manager;
 
     private static Task firstTask;
     private static Task secondTask;
@@ -19,7 +19,7 @@ public class Main {
     private static Subtask subtaskForSecondEpic;
 
     public static void main(String[] args) {
-        manager = new TaskManager();
+        manager = new InMemoryTaskManager();
         printMessage("Создаем задачи");
         createSomeTestingTasks();
         printAllManagerTasks();
