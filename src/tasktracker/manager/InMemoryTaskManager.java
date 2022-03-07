@@ -70,7 +70,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public void removeAllSubtasks() {
         removeFromHistory(subtasks.keySet());
-        HashSet<Integer> epicsID = new HashSet<>(); //todo удалить это говно
         for (Subtask subtask : subtasks.values())
             removeSubtaskFromEpicTask(subtask);
         subtasks.clear();

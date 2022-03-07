@@ -6,6 +6,8 @@ import tasktracker.taskdata.Subtask;
 import tasktracker.taskdata.Task;
 import tasktracker.taskdata.TaskStatus;
 
+import java.util.List;
+
 public class Main {
 
     private static InMemoryTaskManager manager;
@@ -29,9 +31,54 @@ public class Main {
         printMessage("Делаем один эпик завершенным через завершение сабтасков");
         makeDoneOneOfEpics();
         printAllManagerTasks();
+
+        printMessage("Проверяем пустую историю");
+        checkHistory();
+
+        printMessage("Получаем три задачи для тестирования истории, размер которой меньше 10");
+        getThreeTasks();
+        checkHistory();
+
+
+        printMessage("Добавляем больше задач в историю и еще раз проверяем отображение");
+        getElevenTasks();
+        checkHistory();
+
         printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике)");
         removeSomeTasks();
         printAllManagerTasks();
+
+        printMessage("Проверяем историю");
+        checkHistory();
+    }
+
+    private static void checkHistory() {
+        List<Task> history = manager.history();
+        for (Task task : history) {
+            System.out.println(task.getClass().getSimpleName() + ", id = " + task.getID());
+        }
+    }
+
+    private static void getThreeTasks() {
+        manager.getTask(1);
+        manager.getEpicTask(3);
+        manager.getSubtask(5);
+    }
+
+    private static void getElevenTasks() {
+        manager.getTask(2);
+        manager.getEpicTask(6);
+        manager.getSubtask(7);
+        manager.getTask(1);
+        manager.getTask(2);
+        manager.getEpicTask(3);
+        manager.getTask(22);   //ошибочная запись
+        manager.getEpicTask(1); //ошибочная запись
+        manager.getSubtask(4);
+        manager.getSubtask(5);
+        manager.getEpicTask(3);
+        manager.getEpicTask(6);
+        manager.getTask(1);
     }
 
     private static void printMessage(String message) {
