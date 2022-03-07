@@ -12,6 +12,8 @@ public interface TaskManager {
 
     List<Subtask> getSubtasks();
 
+    List<Task> history();
+
     void removeAllTasks();
 
     void removeAllEpicTasks();
