@@ -54,8 +54,9 @@ public class Main {
 
     private static void checkHistory() {
         List<Task> history = manager.history();
-        for (Task task : history) {
-            System.out.println(task.getClass().getSimpleName() + ", id = " + task.getID());
+        System.out.println("Список просмотренных задач, 1 - самая старая, 10 - самая последняя:");
+        for (int i = 0; i < history.size(); i++) {
+            System.out.println(i + ". " + history.get(i));
         }
     }
 
