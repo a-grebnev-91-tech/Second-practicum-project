@@ -11,13 +11,11 @@ import java.util.List;
  */
 public interface HistoryManager {
 
-    void add(Integer id);
+    void add(Long id);
 
-    void add(Collection<Integer> IDs);
+    void remove(Long id);
 
-    void remove(Integer id);
+    void remove(Collection<Long> IDs);
 
-    void remove(Collection<Integer> IDs);
-
-    List<Integer> getHistory();
+    List<Long> getHistory();
 }

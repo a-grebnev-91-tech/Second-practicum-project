@@ -20,11 +20,11 @@ public interface TaskManager {
 
     void removeAllSubtasks();
 
-    Task getTask(int id);
+    Task getTask(long id);
 
-    EpicTask getEpicTask(int id);
+    EpicTask getEpicTask(long id);
 
-    Subtask getSubtask(int id);
+    Subtask getSubtask(long id);
 
     boolean createTask(Task task);
 
@@ -38,11 +38,11 @@ public interface TaskManager {
 
     boolean updateSubtask(Subtask subtask);
 
-    boolean removeTask(int id);
+    boolean removeTask(long id);
 
-    boolean removeEpicTask(int id);
+    boolean removeEpicTask(long id);
 
-    boolean removeSubtask(int id);
+    boolean removeSubtask(long id);
 
     List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
 }

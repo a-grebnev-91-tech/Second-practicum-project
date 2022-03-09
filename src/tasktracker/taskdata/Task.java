@@ -2,10 +2,14 @@ package tasktracker.taskdata;
 
 public class Task implements Cloneable{
 
-    protected int id;
-    protected TaskStatus status;
-    protected String name;
-    protected String description;
+    /**
+     * поля были объявлены протектед для простого доступа к ним из наследников.
+     * если их делать приватными как тогда к ним получить доступ?
+     */
+    private long id; //сложно представить себе 2 миллиарда задач, ну да ладно, лонг - так лонг, сейчас перелопачу весь код ;)
+    private TaskStatus status;
+    private String name;
+    private String description;
 
     public Task(String name, String description) {
         if (name == null || name.isBlank())
@@ -17,14 +21,18 @@ public class Task implements Cloneable{
         this.status = TaskStatus.NEW;
     }
 
-    public Task(int id, TaskStatus status, String name, String description) {
+    public Task(TaskStatus status, String name, String description){
         this(name, description);
         if (status == null)
             throw new TaskInvalidException("Cannot create task with null status");
+        this.status = status;
+    }
+
+    public Task(long id, TaskStatus status, String name, String description) {
+        this(status, name, description);
         if (id < 0)
             throw new TaskInvalidException("Cannot create task with ID less than 0");
         this.id = id;
-        this.status = status;
     }
 
     public String getName() {
@@ -44,11 +52,11 @@ public class Task implements Cloneable{
         this.description = description != null ? description : "";
     }
 
-    public int getID() {
+    public long getID() {
         return id;
     }
 
-    public void setID(int id) {
+    public void setID(long id) {
         if (id >= 0)
             this.id = id;
     }
@@ -69,7 +77,7 @@ public class Task implements Cloneable{
 
     @Override
     public String toString() {
-        return "taskManagement.Task{" +
+        return "Task{" +
                 "id=" + id +
                 ", status=" + status +
                 ", name='" + name + '\'' +

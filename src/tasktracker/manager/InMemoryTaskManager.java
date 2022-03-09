@@ -6,11 +6,11 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HashMap<Integer, Task> tasks;
-    private final HashMap<Integer, EpicTask> epicTasks;
-    private final HashMap<Integer, Subtask> subtasks;
+    private final HashMap<Long, Task> tasks;
+    private final HashMap<Long, EpicTask> epicTasks;
+    private final HashMap<Long, Subtask> subtasks;
     private final HistoryManager historyManager;
-    private int id;
+    private long id;
 
     public InMemoryTaskManager() {
         tasks = new HashMap<>();
@@ -22,9 +22,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> history() {
-        List<Integer> IDs = historyManager.getHistory();
+        List<Long> IDs = historyManager.getHistory();
         List<Task> history = new ArrayList<>();
-        for (Integer id : IDs) {
+        for (Long id : IDs) {
             if (tasks.containsKey(id))
                 history.add(tasks.get(id).clone());
             else if (epicTasks.containsKey(id))
@@ -73,7 +73,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Task getTask(int id) {
+    public Task getTask(long id) {
         Task task = tasks.get(id);
         if (task == null)
             return null;
@@ -82,7 +82,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public EpicTask getEpicTask(int id) {
+    public EpicTask getEpicTask(long id) {
         EpicTask task = epicTasks.get(id);
         if (task == null)
             return null;
@@ -91,7 +91,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public Subtask getSubtask(int id) {
+    public Subtask getSubtask(long id) {
         Subtask task = subtasks.get(id);
         if (task == null)
             return null;
@@ -102,9 +102,10 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean createTask(Task task) {
         if (isTaskIsValid(task)) {
-            task.setID(id);
+            long currentID = generateId();
+            task.setID(currentID);
             task = task.clone();
-            tasks.put(id++, task);
+            tasks.put(currentID, task);
             return tasks.containsValue(task);
         }
         return false;
@@ -113,10 +114,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean createEpicTask(EpicTask epicTask) {
         if (isEpicTaskIsValid(epicTask)) {
-            epicTask.setID(id);
+            long currentID = generateId();
+            epicTask.setID(currentID);
             updateEpicStatus(epicTask);
             epicTask = epicTask.clone();
-            epicTasks.put(id++, epicTask);
+            epicTasks.put(currentID, epicTask);
             return epicTasks.containsValue(epicTask);
         }
         return false;
@@ -125,11 +127,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean createSubtask(Subtask subtask) {
         if (isSubtaskIsValid(subtask)) {
-            subtask.setID(id);
+            long currentID = generateId();
+            subtask.setID(currentID);
             subtask = subtask.clone();
-            subtasks.put(id, subtask);
+            subtasks.put(currentID, subtask);
             addSubtaskToEpicTask(subtask);
-            id++;
             return subtasks.containsValue(subtask);
         }
         return false;
@@ -147,6 +149,14 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean updateEpicTask(EpicTask epicTask) {
         if (isEpicTaskIsValid(epicTask) && epicTasks.containsKey(epicTask.getID())) {
+            /**
+             * из того ТЗ, которое есть в спринте вообще сложно понять, как дальше будет организованна работа
+             * с этими задачами)) Метод removeOrphanedSubtasks я добавил после вебинара с наставником,
+             * там он поднял этот вопрос, и меня заинтересовала его реализация.
+             * Тут возникает вопрос, на который у меня нет ответа, что в данном случае важнее консистентность данных,
+             * или производительность, хотя конечно если задач будет 2 млрд, то этот метод производительность просадит
+             * неплохо))
+             */
             removeOrphanedSubtasks(epicTask);
             epicTasks.put(epicTask.getID(), epicTask.clone());
             return true;
@@ -166,7 +176,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean removeTask(int id) {
+    public boolean removeTask(long id) {
         if (tasks.containsKey(id)) {
             historyManager.remove(id);
             tasks.remove(id);
@@ -176,13 +186,13 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean removeEpicTask(int id) {
+    public boolean removeEpicTask(long id) {
         if (epicTasks.containsKey(id)) {
-            ArrayList<Integer> subtasksId = epicTasks.get(id).getSubtasksID();
+            ArrayList<Long> subtasksId = epicTasks.get(id).getSubtasksID();
             historyManager.remove(subtasksId);
             historyManager.remove(id);
             epicTasks.remove(id);
-            for (Integer subtaskID : subtasksId) {
+            for (Long subtaskID : subtasksId) {
                 removeSubtask(subtaskID);
             }
             return true;
@@ -191,7 +201,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean removeSubtask(int id) {
+    public boolean removeSubtask(long id) {
         if (subtasks.containsKey(id)) {
             removeSubtaskFromEpicTask(subtasks.get(id));
             historyManager.remove(id);
@@ -205,17 +215,21 @@ public class InMemoryTaskManager implements TaskManager {
     public List<Subtask> getEpicTaskSubtasks(EpicTask epicTask) {
         ArrayList<Subtask> result = new ArrayList<>();
         if (epicTask != null && epicTasks.containsKey(epicTask.getID())) {
-            for (Integer subtaskID : epicTask.getSubtasksID()) {
+            for (Long subtaskID : epicTask.getSubtasksID()) {
                 result.add(subtasks.get(subtaskID));
             }
         }
         return result;
     }
 
+    private long generateId() {
+        return id++;
+    }
+
     private boolean addSubtaskToEpicTask(Subtask subtask) {
         if (isSubtaskIsValid(subtask) && subtasks.containsKey(subtask.getID())) {
             EpicTask epicTaskForCurrentSubtask = epicTasks.get(subtask.getEpicTaskID());
-            epicTaskForCurrentSubtask.addSubtask(id);
+            epicTaskForCurrentSubtask.addSubtask(subtask.getID());
             updateEpicStatus(epicTaskForCurrentSubtask);
             return true;
         }
@@ -223,8 +237,8 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void removeSubtaskFromEpicTask(Subtask subtask) {
-        int subtaskID = subtask.getID();
-        int epicID = subtask.getEpicTaskID();
+        long subtaskID = subtask.getID();
+        long epicID = subtask.getEpicTaskID();
         if (epicTasks.containsKey(epicID)) {
             epicTasks.get(epicID).removeSubtask(subtaskID);
             updateEpicStatus(epicTasks.get(epicID));
@@ -232,15 +246,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void removeOrphanedSubtasks(EpicTask epicTask) {
-        int epicID = epicTask.getID();
-        ArrayList<Integer> epicSubtasksID = epicTask.getSubtasksID();
-        ArrayList<Integer> subtasksIDInMemory = new ArrayList<>();
+        long epicID = epicTask.getID();
+        ArrayList<Long> epicSubtasksID = epicTask.getSubtasksID();
+        ArrayList<Long> subtasksIDInMemory = new ArrayList<>();
         for (Subtask subtaskInMemory : subtasks.values()) {
             if (subtaskInMemory.getEpicTaskID() == epicID) {
                 subtasksIDInMemory.add(subtaskInMemory.getID());
             }
         }
-        for (Integer IDInMemory : subtasksIDInMemory) {
+        for (Long IDInMemory : subtasksIDInMemory) {
             if (!(epicSubtasksID.contains(IDInMemory))) {
                 subtasks.remove(IDInMemory);
             }
@@ -258,8 +272,8 @@ public class InMemoryTaskManager implements TaskManager {
     private boolean isEpicTaskIsValid(EpicTask epicTask) {
         if (epicTask == null)
             return false;
-        ArrayList<Integer> subtasksID = epicTask.getSubtasksID();
-        for (Integer id : subtasksID) {
+        ArrayList<Long> subtasksID = epicTask.getSubtasksID();
+        for (Long id : subtasksID) {
             if (!subtasks.containsKey(id))
                 return false;
         }
@@ -267,16 +281,16 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     private void updateEpicStatus(EpicTask epicTask) {
-        ArrayList<Integer> subtasksID = epicTask.getSubtasksID();
+        ArrayList<Long> subtasksID = epicTask.getSubtasksID();
         TaskStatus currentStatus = getEpicStatusBySubtasksID(subtasksID);
         epicTask.setStatus(currentStatus);
     }
 
-    private TaskStatus getEpicStatusBySubtasksID(ArrayList<Integer> subtasksID) {
+    private TaskStatus getEpicStatusBySubtasksID(ArrayList<Long> subtasksID) {
         if (subtasksID == null || subtasksID.size() == 0)
             return TaskStatus.NEW;
         HashSet<TaskStatus> currentStatuses = new HashSet<>();
-        for (Integer subtaskID : subtasksID) {
+        for (Long subtaskID : subtasksID) {
             if (subtaskID < 1)
                 throw new TaskInvalidException("Detected invalid ID");
             Subtask currentSubtask = subtasks.get(subtaskID);
