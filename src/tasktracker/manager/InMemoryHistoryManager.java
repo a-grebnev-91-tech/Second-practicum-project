@@ -21,6 +21,9 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (!historyID.isEmpty() && historyID.size() >= MAX_HISTORY_SIZE) {
             historyID.remove(historyID.iterator().next());
         }
+        if (historyID.contains(id)) {
+            historyID.remove(id);
+        }
         historyID.add(id);
     }
 
