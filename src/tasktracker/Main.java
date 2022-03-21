@@ -40,6 +40,7 @@ public class Main {
         checkHistory();
 
 
+        //todo сделать так, чтобы размер истории был 10, без повторений.
         printMessage("Добавляем больше задач в историю и еще раз проверяем отображение");
         getElevenTasks();
         checkHistory();
