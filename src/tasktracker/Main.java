@@ -19,6 +19,12 @@ public class Main {
     private static Subtask firstSubtaskForFirstEpic;
     private static Subtask secondSubtaskForFirstEpic;
     private static Subtask subtaskForSecondEpic;
+    private static Task thirdTask;
+    private static Task fourthTask;
+    private static EpicTask thirdEpic;
+    private static EpicTask fourthEpic;
+    private static Subtask firstSubtaskForThirdEpic;
+    private static Subtask secondSubtaskForThirdEpic;
 
     public static void main(String[] args) {
         manager = Managers.getDefault();
@@ -39,18 +45,42 @@ public class Main {
         getThreeTasks();
         checkHistory();
 
+        //тест 4го спринта
+        printMessage("Добавляем больше задач для тестирования 4го спринта");
+        addMoreTasks();
+        printAllManagerTasks();
 
-        //todo сделать так, чтобы размер истории был 10, без повторений.
-        printMessage("Добавляем больше задач в историю и еще раз проверяем отображение");
-        getElevenTasks();
+        printMessage("Добавляем больше задач в историю");
+        getSomeTasks();
         checkHistory();
 
-        printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике)");
+        printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике) (айдишники 1, 6, 4 (у 6 эпика " +
+                "должна удалиться сабтаска с id 7");
         removeSomeTasks();
         printAllManagerTasks();
 
         printMessage("Проверяем историю");
         checkHistory();
+    }
+
+    private static void addMoreTasks() {
+        thirdTask = new Task("Сделай паузу", "Скушай твикс");
+        manager.createTask(thirdTask);
+        fourthTask = new Task("Сходи в магазин", "В пятерочке у дома появился сахар!");
+        manager.createTask(fourthTask);
+
+        thirdEpic = new EpicTask("Готовься к эмиграции", "Пока не оказался в Северной Корее");
+        manager.createEpicTask(thirdEpic);
+        firstSubtaskForThirdEpic = new Subtask(thirdEpic.getID(), "Собирай манатки", "Пять пар трусов, "
+                + " пять пар носков. Загран паспорт.");
+        manager.createSubtask(firstSubtaskForThirdEpic);
+        secondSubtaskForThirdEpic = new Subtask(thirdEpic.getID(), "Угони трактор", "Нужно транспортное"
+                + " средство.");
+        manager.createSubtask(secondSubtaskForThirdEpic);
+
+
+        fourthEpic = new EpicTask("Пустой эпик", "Просто для тестирования.");
+        manager.createEpicTask(fourthEpic);
     }
 
     private static void checkHistory() {
@@ -65,9 +95,10 @@ public class Main {
         manager.getTask(1);
         manager.getEpicTask(3);
         manager.getSubtask(5);
+        manager.getTask(1);
     }
 
-    private static void getElevenTasks() {
+    private static void getSomeTasks() {
         manager.getTask(2);
         manager.getEpicTask(6);
         manager.getSubtask(7);
@@ -81,6 +112,14 @@ public class Main {
         manager.getEpicTask(3);
         manager.getEpicTask(6);
         manager.getTask(1);
+        manager.getTask(8);
+        manager.getTask(9);
+        manager.getTask(8);
+        manager.getEpicTask(10);
+        manager.getEpicTask(13);
+        manager.getSubtask(11);
+        manager.getSubtask(12);
+        manager.getSubtask(12);
     }
 
     private static void printMessage(String message) {

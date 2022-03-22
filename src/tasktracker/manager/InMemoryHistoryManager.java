@@ -18,11 +18,11 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void add(Long id) {
-        if (!historyID.isEmpty() && historyID.size() >= MAX_HISTORY_SIZE) {
-            historyID.remove(historyID.iterator().next());
-        }
         if (historyID.contains(id)) {
             historyID.remove(id);
+        }
+        if (historyID.size() >= MAX_HISTORY_SIZE) {
+            historyID.remove(historyID.iterator().next());
         }
         historyID.add(id);
     }

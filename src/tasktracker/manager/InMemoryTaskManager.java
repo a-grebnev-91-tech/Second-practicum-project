@@ -149,14 +149,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean updateEpicTask(EpicTask epicTask) {
         if (isEpicTaskIsValid(epicTask) && epicTasks.containsKey(epicTask.getID())) {
-            /**
-             * из того ТЗ, которое есть в спринте вообще сложно понять, как дальше будет организованна работа
-             * с этими задачами)) Метод removeOrphanedSubtasks я добавил после вебинара с наставником,
-             * там он поднял этот вопрос, и меня заинтересовала его реализация.
-             * Тут возникает вопрос, на который у меня нет ответа, что в данном случае важнее консистентность данных,
-             * или производительность, хотя конечно если задач будет 2 млрд, то этот метод производительность просадит
-             * неплохо))
-             */
             removeOrphanedSubtasks(epicTask);
             epicTasks.put(epicTask.getID(), epicTask.clone());
             return true;
