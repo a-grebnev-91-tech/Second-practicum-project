@@ -53,6 +53,10 @@ public class Main {
 
         printMessage("Добавляем больше задач в историю");
         getSomeTasks();
+        secondSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
+        firstSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
+        manager.updateSubtask(secondSubtaskForThirdEpic);
+        manager.updateSubtask(firstSubtaskForThirdEpic);
         checkHistory();
 
         printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике) (айдишники 1, 6, 4 (у 6 эпика " +

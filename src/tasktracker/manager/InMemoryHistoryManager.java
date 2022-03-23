@@ -5,8 +5,7 @@ import java.util.*;
 import tasktracker.taskdata.Task;
 import tasktracker.historydata.HistoryNode;
 
-public class InMemoryHistoryManager implements HistoryManager
- { //todo проверить реализацию моего списка
+public class InMemoryHistoryManager implements HistoryManager {
 
     private final Map<Long, HistoryNode> history;
     private final LinkedHistoryList list;
@@ -48,7 +47,18 @@ public class InMemoryHistoryManager implements HistoryManager
         return list.getTasks();
     }
 
-    private static class LinkedHistoryList {
+     @Override
+     public void updateTask(final Task task) {
+        if (task == null)
+            return;
+        final Task taskToAdd = task.clone();
+        HistoryNode currentNode = history.get(taskToAdd.getID());
+        if (currentNode != null) {
+            currentNode.setData(taskToAdd);
+        }
+     }
+
+     private static class LinkedHistoryList {
         private HistoryNode first;
         private HistoryNode last;
         private int size;

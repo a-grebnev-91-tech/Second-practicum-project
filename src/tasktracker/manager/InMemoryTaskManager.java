@@ -131,6 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
     public boolean updateTask(Task task) {
         if (isTaskIsValid(task) && tasks.containsKey(task.getID())) {
             tasks.put(task.getID(), task.clone());
+            updateTaskInHistory(task);
             return true;
         }
         return false;
@@ -141,6 +142,7 @@ public class InMemoryTaskManager implements TaskManager {
         if (isEpicTaskIsValid(epicTask) && epicTasks.containsKey(epicTask.getID())) {
             removeOrphanedSubtasks(epicTask);
             epicTasks.put(epicTask.getID(), epicTask.clone());
+            updateTaskInHistory(epicTask);
             return true;
         }
         return false;
@@ -152,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
             subtask = subtask.clone();
             subtasks.put(subtask.getID(), subtask);
             updateEpicStatus(epicTasks.get(subtask.getEpicTaskID()));
+            updateTaskInHistory(subtask);
             return true;
         }
         return false;
@@ -202,6 +205,10 @@ public class InMemoryTaskManager implements TaskManager {
             }
         }
         return result;
+    }
+
+    private void updateTaskInHistory(Task task) {
+        historyManager.updateTask(task);
     }
 
     private long generateId() {
@@ -266,6 +273,7 @@ public class InMemoryTaskManager implements TaskManager {
         ArrayList<Long> subtasksID = epicTask.getSubtasksID();
         TaskStatus currentStatus = getEpicStatusBySubtasksID(subtasksID);
         epicTask.setStatus(currentStatus);
+        historyManager.updateTask(epicTask);
     }
 
     private TaskStatus getEpicStatusBySubtasksID(ArrayList<Long> subtasksID) {
