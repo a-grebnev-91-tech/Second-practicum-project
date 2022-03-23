@@ -22,17 +22,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public List<Task> history() {
-        List<Long> IDs = historyManager.getHistory();
-        List<Task> history = new ArrayList<>();
-        for (Long id : IDs) {
-            if (tasks.containsKey(id))
-                history.add(tasks.get(id).clone());
-            else if (epicTasks.containsKey(id))
-                history.add(epicTasks.get(id).clone());
-            else if (subtasks.containsKey(id))
-                history.add(subtasks.get(id).clone());
-        }
-        return history;
+        return historyManager.getHistory();
     }
 
     @Override
@@ -77,7 +67,7 @@ public class InMemoryTaskManager implements TaskManager {
         Task task = tasks.get(id);
         if (task == null)
             return null;
-        historyManager.add(id);
+        historyManager.add(task);
         return task.clone();
     }
 
@@ -86,7 +76,7 @@ public class InMemoryTaskManager implements TaskManager {
         EpicTask task = epicTasks.get(id);
         if (task == null)
             return null;
-        historyManager.add(id);
+        historyManager.add(task);
         return task.clone();
     }
 
@@ -95,7 +85,7 @@ public class InMemoryTaskManager implements TaskManager {
         Subtask task = subtasks.get(id);
         if (task == null)
             return null;
-        historyManager.add(id);
+        historyManager.add(task);
         return task.clone();
     }
 

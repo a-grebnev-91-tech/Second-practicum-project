@@ -2,20 +2,15 @@ package tasktracker.manager;
 
 import java.util.Collection;
 import java.util.List;
+import tasktracker.taskdata.Task;
 
-/**
- * комментарий для ревьюера - на мой взгляд хранить задачи где-либо кроме менеджера не совсем правильно,
- * поэтому вместо передачи ссылок на объекты задач в HistoryManager я пошел по пути передачи айди задачи
- * и реализации работы класса HistoryManager только с айдишниками задач. Не уверен правилен ли такой подход,
- * но то, что предлагается в задании мне кажется еще менее правильным.
- */
 public interface HistoryManager {
 
-    void add(Long id);
+    void add(Task task);
 
     void remove(Long id);
 
-    void remove(Collection<Long> IDs);
+    void remove(Collection<Long> ids);
 
-    List<Long> getHistory();
+    List<Task> getHistory();
 }

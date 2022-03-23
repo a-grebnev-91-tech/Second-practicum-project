@@ -57,4 +57,22 @@ public class EpicTask extends Task {
                 ", subtasksID=" + subtasksID +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        EpicTask epicTask = (EpicTask) o;
+
+        return subtasksID != null ? subtasksID.equals(epicTask.subtasksID) : epicTask.subtasksID == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (subtasksID != null ? subtasksID.hashCode() : 0);
+        return result;
+    }
 }

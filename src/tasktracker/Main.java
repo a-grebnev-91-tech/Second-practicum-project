@@ -1,5 +1,6 @@
 package tasktracker;
 
+import tasktracker.historydata.HistoryNode;
 import tasktracker.manager.*;
 import tasktracker.taskdata.EpicTask;
 import tasktracker.taskdata.Subtask;
