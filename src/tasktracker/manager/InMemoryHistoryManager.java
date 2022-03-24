@@ -65,7 +65,7 @@ public class InMemoryHistoryManager implements HistoryManager {
 
         public HistoryNode linkLast(Task task) {
             HistoryNode newNode = new HistoryNode(task);
-            if(first == null) {
+            if(size == 0) {
                 first = newNode;
                 last = first;
             } else {

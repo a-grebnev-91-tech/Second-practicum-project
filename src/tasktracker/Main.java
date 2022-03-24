@@ -51,12 +51,9 @@ public class Main {
         addMoreTasks();
         printAllManagerTasks();
 
-        printMessage("Добавляем больше задач в историю");
+        printMessage("Добавляем больше задач в историю, а затем изменяем у некоторых статус");
         getSomeTasks();
-        secondSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
-        firstSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(secondSubtaskForThirdEpic);
-        manager.updateSubtask(firstSubtaskForThirdEpic);
+        changeStatusOfSomeNewTasks();
         checkHistory();
 
         printMessage("Удаляем один эпик, одну задачу и одну подзадачу (в другом эпике) (айдишники 1, 6, 4 (у 6 эпика " +
@@ -66,6 +63,13 @@ public class Main {
 
         printMessage("Проверяем историю");
         checkHistory();
+    }
+
+    private static void changeStatusOfSomeNewTasks() {
+        secondSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
+        firstSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
+        manager.updateSubtask(secondSubtaskForThirdEpic);
+        manager.updateSubtask(firstSubtaskForThirdEpic);
     }
 
     private static void addMoreTasks() {

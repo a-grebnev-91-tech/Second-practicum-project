@@ -2,10 +2,6 @@ package tasktracker.taskdata;
 
 public class Task implements Cloneable{
 
-    /**
-     * поля были объявлены протектед для простого доступа к ним из наследников.
-     * если их делать приватными как тогда к ним получить доступ?
-     */
     private long id; //сложно представить себе 2 миллиарда задач, ну да ладно, лонг - так лонг, сейчас перелопачу весь код ;)
     private TaskStatus status;
     private String name;
