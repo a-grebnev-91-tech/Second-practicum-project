@@ -1,7 +1,6 @@
 package tasktracker.taskdata;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class EpicTask extends Task {
     private final ArrayList<Long> subtasksID;
