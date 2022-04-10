@@ -5,7 +5,7 @@ import java.util.*;
 import tasktracker.taskdata.Task;
 import tasktracker.historydata.HistoryNode;
 
-public class InMemoryHistoryManager implements HistoryManager {
+public class InMemoryHistoryManager implements HistoryManager, Cloneable {
 
     private final Map<Long, HistoryNode> history;
     private final LinkedHistoryList list;
@@ -15,6 +15,11 @@ public class InMemoryHistoryManager implements HistoryManager {
     public InMemoryHistoryManager() {
         history = new HashMap<>();
         list = new LinkedHistoryList();
+    }
+
+    public InMemoryHistoryManager(Map<Long, HistoryNode> history, LinkedHistoryList list) {
+        this.history = history;
+        this.list = list;
     }
 
     @Override
@@ -58,7 +63,12 @@ public class InMemoryHistoryManager implements HistoryManager {
         }
      }
 
-     private static class LinkedHistoryList {
+    @Override
+    public InMemoryHistoryManager clone() {
+        return new InMemoryHistoryManager(this.history, this.list);
+    }
+
+    private static class LinkedHistoryList {
         private HistoryNode first;
         private HistoryNode last;
         private int size;

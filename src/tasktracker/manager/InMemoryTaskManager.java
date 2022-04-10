@@ -20,9 +20,35 @@ public class InMemoryTaskManager implements TaskManager {
         id = 1;
     }
 
+    public InMemoryTaskManager(HashMap<Long, Task> tasks,
+                               HashMap<Long, EpicTask> epicTasks,
+                               HashMap<Long, Subtask> subtasks,
+                               HistoryManager historyManager,
+                               long id) {
+        this.tasks = new HashMap<>();
+        for (Map.Entry<Long, Task> taskEntry : tasks.entrySet()) {
+            this.tasks.put(taskEntry.getKey(), taskEntry.getValue().clone());
+        }
+        this.epicTasks = new HashMap<>();
+        for (Map.Entry<Long, EpicTask> epicEntry : epicTasks.entrySet()) {
+            this.epicTasks.put(epicEntry.getKey(), epicEntry.getValue().clone());
+        }
+        this.subtasks = new HashMap<>();
+        for (Map.Entry<Long, Subtask> subtaskEntry : subtasks.entrySet()) {
+            this.subtasks.put(subtaskEntry.getKey(), subtaskEntry.getValue().clone());
+        }
+        this.historyManager = historyManager.clone();
+        this.id = id;
+    }
+
     @Override
     public List<Task> history() {
         return historyManager.getHistory();
+    }
+
+    @Override
+    public HistoryManager getHistoryManager() {
+        return historyManager.clone();
     }
 
     @Override

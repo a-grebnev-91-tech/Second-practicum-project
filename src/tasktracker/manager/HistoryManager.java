@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import tasktracker.taskdata.Task;
 
-public interface HistoryManager {
+public interface HistoryManager extends Cloneable {
 
     void add(Task task);
 
@@ -13,6 +13,8 @@ public interface HistoryManager {
     void remove(Collection<Long> ids);
 
     List<Task> getHistory();
+
+    HistoryManager clone();
 
     void updateTask(Task task);
 }

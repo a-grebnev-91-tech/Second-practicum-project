@@ -14,6 +14,8 @@ public interface TaskManager {
 
     List<Task> history();
 
+    HistoryManager getHistoryManager();
+
     void removeAllTasks();
 
     void removeAllEpicTasks();
