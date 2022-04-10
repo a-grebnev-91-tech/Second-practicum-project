@@ -2,17 +2,14 @@ package tasktracker.manager;
 
 import tasktracker.taskdata.*;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.io.File;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-
+// todo put file.txt to resources
     String file;
 
     public FileBackedTaskManager(String file) {
@@ -21,38 +18,77 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public FileBackedTaskManager(HashMap<Long, Task> tasks,
-                                 HashMap<Long, EpicTask> epicTasks,
+                                 HashMap<Long, EpicTask> epics,
                                  HashMap<Long, Subtask> subtasks,
                                  HistoryManager historyManager,
                                  long id,
                                  String file) {
-        super(tasks, epicTasks, subtasks, historyManager, id);
+        super(tasks, epics, subtasks, historyManager, id);
         this.file = file;
     }
 
     public static FileBackedTaskManager loadFromFile(File file) {
-
+        HashMap<Long, Task> tasks = new HashMap<>();
+        HashMap<Long, EpicTask> epics = new HashMap<>();
+        HashMap<Long, Subtask> subtasks = new HashMap<>();
+        List<Long> historyIDs = null;
+        HistoryManager historyManager = new InMemoryHistoryManager();
+        long id = 0;
+        Task currentTask = null;
+        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
+            String line = reader.readLine();
+            while (reader.ready()) {
+                line = reader.readLine();
+                if (line.isBlank()) {
+                    break;
+                }
+                currentTask = taskFromString(line);
+                if (currentTask instanceof EpicTask) {
+                    epics.put(currentTask.getID(), (EpicTask) currentTask);
+                } else if (currentTask instanceof  Subtask) {
+                    subtasks.put(currentTask.getID(), (Subtask) currentTask);
+                } else {
+                    tasks.put(currentTask.getID(), currentTask);
+                }
+                if (id < currentTask.getID()) {
+                    id = currentTask.getID();
+                }
+            }
+            line = reader.readLine();
+            historyIDs = historyFromString(line);
+        } catch (IOException ex) {
+            throw new CsvParseException("Не могу прочитать CSV файл", ex.getCause());
+        }
+        matchEpicsWithSubtasks(epics, subtasks);
+        updateHistoryManager(historyManager, historyIDs);
+        return new FileBackedTaskManager(tasks, epics, subtasks, historyManager, id, file.getPath());
     }
 
-    public static Task taskFromString(String value) {
-        String[] splitValue = value.split(",");
-        long id = Long.parseLong(splitValue[0]);
-        TaskType type = TaskType.valueOf(splitValue[1]);
-        String name = splitValue[2];
-        TaskStatus status = TaskStatus.valueOf(splitValue[3]);
-        String description = splitValue[4];
-        switch (type) {
-            case TASK:
-                return new Task(id, status, name, description);
-            case EPIC:
-                return new EpicTask(id, status, name, description);
-            case SUBTASK:
-                long epicID = Long.parseLong(splitValue[5]);
-
+    private static Task taskFromString(String value) {
+        try {
+            String[] splitValue = value.split(",");
+            long id = Long.parseLong(splitValue[0]);
+            TaskType type = TaskType.valueOf(splitValue[1]);
+            String name = splitValue[2];
+            TaskStatus status = TaskStatus.valueOf(splitValue[3]);
+            String description = splitValue[4];
+            switch (type) {
+                case TASK:
+                    return new Task(id, status, name, description);
+                case EPIC:
+                    return new EpicTask(id, status, name, description);
+                case SUBTASK:
+                    long epicID = Long.parseLong(splitValue[5]);
+                    return new Subtask(id, epicID, status, name, description);
+                default:
+                    throw new CsvParseException("Неизвестный тип задачи");
+            }
+        } catch (IllegalArgumentException | NullPointerException ex) {
+            throw new CsvParseException("CSV файл имеет недопустимый вид", ex.getCause());
         }
     }
 
-    public static String toString(HistoryManager history) {
+    private static String historyToString(HistoryManager history) {
         StringBuilder builder = new StringBuilder();
         for (Task task : history.getHistory()) {
             builder.append(task.getID());
@@ -61,7 +97,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return builder.toString();
     }
 
-    public static List<Long> historyFromString(String value) {
+    private static List<Long> historyFromString(String value) {
         List<Long> resultList = new ArrayList<>();
         String[] ids = value.split(",");
         for (String id : ids) {
@@ -177,7 +213,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         builder.append(System.lineSeparator());
         appendTasksInCsv(builder);
         builder.append(System.lineSeparator());
-        builder.append(toString(getHistoryManager()));
+        builder.append(historyToString(getHistoryManager()));
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
             writer.write(builder.toString());
         } catch (IOException ex) {
@@ -220,6 +256,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         }
 
         public ManagerSaveException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    static class CsvParseException extends RuntimeException {
+        public CsvParseException() {
+            super();
+        }
+
+        public CsvParseException(String message) {
+            super(message);
+        }
+
+        public CsvParseException(String message, Throwable cause) {
             super(message, cause);
         }
     }
