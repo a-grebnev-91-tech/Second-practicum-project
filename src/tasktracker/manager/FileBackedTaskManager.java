@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-// todo put file.txt to resources
+    // todo put file.txt to resources
     String file;
 
     public FileBackedTaskManager(String file) {
@@ -31,10 +31,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         HashMap<Long, Task> tasks = new HashMap<>();
         HashMap<Long, EpicTask> epics = new HashMap<>();
         HashMap<Long, Subtask> subtasks = new HashMap<>();
-        List<Long> historyIDs = null;
+        List<Long> historyIDs;
         HistoryManager historyManager = new InMemoryHistoryManager();
         long id = 0;
-        Task currentTask = null;
+        Task currentTask;
         try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
             String line = reader.readLine();
             while (reader.ready()) {
@@ -45,7 +45,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                 currentTask = taskFromString(line);
                 if (currentTask instanceof EpicTask) {
                     epics.put(currentTask.getID(), (EpicTask) currentTask);
-                } else if (currentTask instanceof  Subtask) {
+                } else if (currentTask instanceof Subtask) {
                     subtasks.put(currentTask.getID(), (Subtask) currentTask);
                 } else {
                     tasks.put(currentTask.getID(), currentTask);
@@ -60,8 +60,52 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
             throw new CsvParseException("Не могу прочитать CSV файл", ex.getCause());
         }
         matchEpicsWithSubtasks(epics, subtasks);
-        updateHistoryManager(historyManager, historyIDs);
+        updateHistoryManager(historyManager, historyIDs, tasks, epics, subtasks);
         return new FileBackedTaskManager(tasks, epics, subtasks, historyManager, id, file.getPath());
+    }
+
+    private static void updateHistoryManager(HistoryManager historyManager,
+                                             List<Long> historyIDs,
+                                             HashMap<Long, Task> tasks,
+                                             HashMap<Long, EpicTask> epics,
+                                             HashMap<Long, Subtask> subtasks) {
+        Task task;
+        for (long id : historyIDs) {
+            task = tasks.get(id);
+            if (task == null) {
+                task = epics.get(id);
+            }
+            if (task == null) {
+                task = subtasks.get(id);
+            }
+            if (task == null) {
+                throw new CsvParseException("В истории обнаружена не существующая задача");
+            }
+            historyManager.add(task);
+
+// todo cleanup
+//            if (tasks.get(id) != null) {
+//                historyManager.add(tasks.get(id));
+//            } else if (epics.get(id) != null) {
+//                historyManager.add(epics.get(id));
+//            } else if (subtasks.get(id) != null) {
+//                historyManager.add(subtasks.get(id));
+//            } else {
+//                throw new CsvParseException("В истории обнаружена не существующая задача");
+//            }
+        }
+    }
+
+    private static void matchEpicsWithSubtasks(final HashMap<Long, EpicTask> epics,
+                                               final HashMap<Long, Subtask> subtasks) {
+        for (Subtask subtask : subtasks.values()) {
+            long epicID = subtask.getEpicTaskID();
+            if (epics.containsKey(epicID)) {
+                epics.get(epicID).addSubtask(subtask.getID());
+            } else {
+                throw new CsvParseException("Найдена подзадача не привязанная к эпику");
+            }
+        }
     }
 
     private static Task taskFromString(String value) {
@@ -272,5 +316,25 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         public CsvParseException(String message, Throwable cause) {
             super(message, cause);
         }
+    }
+
+    public static void main(String[] args) {
+        FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(
+                new File("resources" + File.separator + "file.txt"));
+        Task task = new Task("Полей цветы", "Полей уже эти чертовы бегонии");
+        EpicTask epic = new EpicTask("Генеральная уборка", "Весна - время приключений");
+        manager.createTask(task);
+        manager.createEpicTask(epic);
+        Subtask subtask = new Subtask(epic.getID(), "Кладовая", "Убери в кладовой");
+        EpicTask epic1 = new EpicTask("Выучи принцыпы кастыльно-ориентированного программирования",
+                "Инкастыляция, накастыливание и поликастылизм");
+        manager.createSubtask(subtask);
+        manager.createEpicTask(epic1);
+        manager.getEpicTask(4);
+        manager.getEpicTask(2);
+        manager.getSubtask(3);
+        manager.getEpicTask(4);
+        epic1.setStatus(TaskStatus.DONE);
+        subtask.setStatus(TaskStatus.IN_PROGRESS);
     }
 }
