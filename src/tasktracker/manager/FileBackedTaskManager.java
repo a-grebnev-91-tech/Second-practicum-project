@@ -1,6 +1,8 @@
 package tasktracker.manager;
 
 import tasktracker.taskdata.*;
+import tasktracker.util.CsvConstructor;
+import tasktracker.util.CsvParser;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -27,6 +29,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.file = file;
     }
 
+    //todo исправить айдишники
     public static FileBackedTaskManager loadFromFile(File file) {
         HashMap<Long, Task> tasks = new HashMap<>();
         HashMap<Long, EpicTask> epics = new HashMap<>();
@@ -110,19 +113,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private static Task taskFromString(String value) {
         try {
-            String[] splitValue = value.split(",");
-            long id = Long.parseLong(splitValue[0]);
-            TaskType type = TaskType.valueOf(splitValue[1]);
-            String name = splitValue[2];
-            TaskStatus status = TaskStatus.valueOf(splitValue[3]);
-            String description = splitValue[4];
+            List<String> values = new ArrayList<>();
+            CsvParser.parse(value, values);
+            long id = Long.parseLong(values.get(0));
+            TaskType type = TaskType.valueOf(values.get(1));
+            String name = values.get(2);
+            TaskStatus status = TaskStatus.valueOf(values.get(3));
+            String description = values.get(4);
             switch (type) {
                 case TASK:
                     return new Task(id, status, name, description);
                 case EPIC:
                     return new EpicTask(id, status, name, description);
                 case SUBTASK:
-                    long epicID = Long.parseLong(splitValue[5]);
+                    long epicID = Long.parseLong(values.get(5));
                     return new Subtask(id, epicID, status, name, description);
                 default:
                     throw new CsvParseException("Неизвестный тип задачи");
@@ -130,15 +134,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         } catch (IllegalArgumentException | NullPointerException ex) {
             throw new CsvParseException("CSV файл имеет недопустимый вид", ex.getCause());
         }
-    }
-
-    private static String historyToString(HistoryManager history) {
-        StringBuilder builder = new StringBuilder();
-        for (Task task : history.getHistory()) {
-            builder.append(task.getID());
-            builder.append(",");
-        }
-        return builder.toString();
     }
 
     private static List<Long> historyFromString(String value) {
@@ -267,31 +262,45 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private void appendTasksInCsv(final StringBuilder builder) {
         for (Task task : getTasks()) {
-            appendTaskCsvString(builder, task, TaskType.TASK);
-            builder.append(System.lineSeparator());
+            String[] values = convertTaskToStrings(task, TaskType.TASK);
+            String taskLine = CsvConstructor.constructLine(values);
+            builder.append(taskLine);
         }
         for (EpicTask epic : getEpicTasks()) {
-            appendTaskCsvString(builder, epic, TaskType.EPIC);
-            builder.append(System.lineSeparator());
+            String[] values = convertTaskToStrings(epic, TaskType.EPIC);
+            String epicLine = CsvConstructor.constructLine(values);
+            builder.append(epicLine);
         }
         for (Subtask subtask : getSubtasks()) {
-            appendTaskCsvString(builder, subtask, TaskType.SUBTASK);
-            builder.append(",");
-            builder.append(subtask.getEpicTaskID());
-            builder.append(System.lineSeparator());
+            String[] values = convertTaskToStrings(subtask, TaskType.SUBTASK);
+            String subtaskLine = CsvConstructor.constructLine(values);
+            builder.append(subtaskLine);
         }
     }
 
-    private void appendTaskCsvString(final StringBuilder builder, final Task task, final TaskType type) {
-        builder.append(task.getID());
-        builder.append(",");
-        builder.append(type.name());
-        builder.append(",");
-        builder.append(task.getName());
-        builder.append(",");
-        builder.append(task.getStatus().name());
-        builder.append(",");
-        builder.append(task.getDescription());
+    private String[] convertTaskToStrings(Task task, TaskType type) {
+        if (type == TaskType.SUBTASK) {
+            return new String[]{String.valueOf(task.getID()),
+                    type.name(),
+                    task.getName(),
+                    task.getStatus().name(),
+                    task.getDescription(),
+                    String.valueOf(((Subtask) task).getEpicTaskID())};
+        }
+        return new String[]{String.valueOf(task.getID()),
+                type.name(),
+                task.getName(),
+                task.getStatus().name(),
+                task.getDescription()};
+    }
+
+    private String historyToString(HistoryManager history) {
+        StringBuilder builder = new StringBuilder();
+        for (Task task : history.getHistory()) {
+            builder.append(task.getID());
+            builder.append(",");
+        }
+        return builder.toString();
     }
 
     static class ManagerSaveException extends RuntimeException {
@@ -328,13 +337,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Subtask subtask = new Subtask(epic.getID(), "Кладовая", "Убери в кладовой");
         EpicTask epic1 = new EpicTask("Выучи принцыпы кастыльно-ориентированного программирования",
                 "Инкастыляция, накастыливание и поликастылизм");
-        manager.createSubtask(subtask);
-        manager.createEpicTask(epic1);
-        manager.getEpicTask(4);
-        manager.getEpicTask(2);
-        manager.getSubtask(3);
-        manager.getEpicTask(4);
         epic1.setStatus(TaskStatus.DONE);
         subtask.setStatus(TaskStatus.IN_PROGRESS);
+        Task task1 = manager.getTask(2);
+        task1.setStatus(TaskStatus.DONE);
+        manager.updateTask(task1);
     }
 }

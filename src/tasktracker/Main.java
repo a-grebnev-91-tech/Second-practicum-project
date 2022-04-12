@@ -72,7 +72,7 @@ public class Main {
     }
 
     private static void addMoreTasks() {
-        thirdTask = new Task("Сделай паузу", "Скушай твикс");
+        thirdTask = new Task("Сделай паузу", "Скушай \"твикс\"");
         manager.createTask(thirdTask);
         fourthTask = new Task("Сходи в магазин", "В пятерочке у дома появился сахар!");
         manager.createTask(fourthTask);
