@@ -136,9 +136,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        FileBackedTaskManager manager = FileBackedTaskManager.loadFromFile(
-                new File("resources" + File.separator + "file.txt"));
-        Task task = new Task("Полей цветы", "Полей уже эти чертовы бегонии");
+        String file = "resources" + File.separator + "file.txt";
+        TaskManager manager = Managers.getFileBackedManager(file);
+        Task task = new Task("Сделай паузу", "Скушай \"Twix\"");
         EpicTask epic = new EpicTask("Генеральная уборка", "Весна - время приключений");
         manager.createTask(task);
         manager.createEpicTask(epic);
@@ -149,8 +149,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         manager.createEpicTask(epic1);
         epic1.setStatus(TaskStatus.DONE);
         subtask.setStatus(TaskStatus.IN_PROGRESS);
-        Task task1 = manager.getTask(2);
-        task1.setStatus(TaskStatus.DONE);
-        manager.updateTask(task1);
+        FileBackedTaskManager managerFromFile = FileBackedTaskManager.loadFromFile(new File(file));
+        managerFromFile.getTask(1);
+        managerFromFile.getEpicTask(2);
+        managerFromFile.getSubtask(3);
     }
 }

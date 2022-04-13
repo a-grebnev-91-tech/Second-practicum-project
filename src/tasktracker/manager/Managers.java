@@ -9,5 +9,8 @@ public final class Managers {
         return new InMemoryTaskManager();
     }
 
+    public static TaskManager getFileBackedManager(String file) {
+        return new FileBackedTaskManager(file);
+    }
 
 }

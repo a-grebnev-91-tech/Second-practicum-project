@@ -115,9 +115,11 @@ public class CsvFileLoader {
 
     private static List<Long> historyFromString(String value) {
         List<Long> resultList = new ArrayList<>();
-        String[] ids = value.split(",");
-        for (String id : ids) {
-            resultList.add(Long.parseLong(id));
+        if (value != null && !value.isBlank()) {
+            String[] ids = value.split(",");
+            for (String id : ids) {
+                resultList.add(Long.parseLong(id));
+            }
         }
         return resultList;
     }
