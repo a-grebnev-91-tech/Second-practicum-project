@@ -6,9 +6,9 @@ import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
-    private final HashMap<Long, Task> tasks;
-    private final HashMap<Long, EpicTask> epicTasks;
-    private final HashMap<Long, Subtask> subtasks;
+    private final Map<Long, Task> tasks;
+    private final Map<Long, EpicTask> epicTasks;
+    private final Map<Long, Subtask> subtasks;
     private final HistoryManager historyManager;
     private long id;
 
@@ -20,9 +20,9 @@ public class InMemoryTaskManager implements TaskManager {
         id = 1;
     }
 
-    public InMemoryTaskManager(HashMap<Long, Task> tasks,
-                               HashMap<Long, EpicTask> epicTasks,
-                               HashMap<Long, Subtask> subtasks,
+    public InMemoryTaskManager(Map<Long, Task> tasks,
+                               Map<Long, EpicTask> epicTasks,
+                               Map<Long, Subtask> subtasks,
                                HistoryManager historyManager,
                                long id) {
         this.tasks = new HashMap<>();

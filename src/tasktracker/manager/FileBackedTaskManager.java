@@ -7,6 +7,7 @@ import tasktracker.test.FifthSprintTest;
 
 import java.io.*;
 import java.util.HashMap;
+import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
     CsvFileSaver saver;
@@ -16,9 +17,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         this.saver = new CsvFileSaver(file, this);
     }
 
-    public FileBackedTaskManager(HashMap<Long, Task> tasks,
-                                 HashMap<Long, EpicTask> epics,
-                                 HashMap<Long, Subtask> subtasks,
+    public FileBackedTaskManager(Map<Long, Task> tasks,
+                                 Map<Long, EpicTask> epics,
+                                 Map<Long, Subtask> subtasks,
                                  HistoryManager historyManager,
                                  long id,
                                  String file) {

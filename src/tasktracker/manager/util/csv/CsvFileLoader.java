@@ -13,12 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class CsvFileLoader {
     public static FileBackedTaskManager load(File file) {
-        HashMap<Long, Task> tasks = new HashMap<>();
-        HashMap<Long, EpicTask> epics = new HashMap<>();
-        HashMap<Long, Subtask> subtasks = new HashMap<>();
+        Map<Long, Task> tasks = new HashMap<>();
+        Map<Long, EpicTask> epics = new HashMap<>();
+        Map<Long, Subtask> subtasks = new HashMap<>();
         List<Long> historyIDs;
         HistoryManager historyManager = new InMemoryHistoryManager();
         long id = 0;
@@ -47,7 +48,7 @@ public class CsvFileLoader {
             line = reader.readLine();
             historyIDs = historyFromString(line);
         } catch (IOException ex) {
-            throw new CsvFileLoader.CsvParseException("Не могу прочитать CSV файл", ex.getCause());
+            throw new FileLoadException("Не могу прочитать CSV файл", ex.getCause());
         }
 
         matchEpicsWithSubtasks(epics, subtasks);
@@ -57,9 +58,9 @@ public class CsvFileLoader {
 
     private static void updateHistoryManager(HistoryManager historyManager,
                                              List<Long> historyIDs,
-                                             HashMap<Long, Task> tasks,
-                                             HashMap<Long, EpicTask> epics,
-                                             HashMap<Long, Subtask> subtasks) {
+                                             Map<Long, Task> tasks,
+                                             Map<Long, EpicTask> epics,
+                                             Map<Long, Subtask> subtasks) {
         Task task;
         for (long id : historyIDs) {
             task = tasks.get(id);
@@ -70,20 +71,20 @@ public class CsvFileLoader {
                 task = subtasks.get(id);
             }
             if (task == null) {
-                throw new CsvFileLoader.CsvParseException("В истории обнаружена не существующая задача");
+                throw new HistoryMismatchException("В истории обнаружена не существующая задача");
             }
             historyManager.add(task);
         }
     }
 
-    private static void matchEpicsWithSubtasks(final HashMap<Long, EpicTask> epics,
-                                               final HashMap<Long, Subtask> subtasks) {
+    private static void matchEpicsWithSubtasks(final Map<Long, EpicTask> epics,
+                                               final Map<Long, Subtask> subtasks) {
         for (Subtask subtask : subtasks.values()) {
             long epicID = subtask.getEpicTaskID();
             if (epics.containsKey(epicID)) {
                 epics.get(epicID).addSubtask(subtask.getID());
             } else {
-                throw new CsvFileLoader.CsvParseException("Найдена подзадача не привязанная к эпику");
+                throw new TaskInvalidException("Найдена подзадача не привязанная к эпику");
             }
         }
     }
@@ -106,10 +107,10 @@ public class CsvFileLoader {
                     long epicID = Long.parseLong(values.get(5));
                     return new Subtask(id, epicID, status, name, description);
                 default:
-                    throw new CsvFileLoader.CsvParseException("Неизвестный тип задачи");
+                    throw new TaskInvalidException("Неизвестный тип задачи");
             }
-        } catch (IllegalArgumentException | NullPointerException ex) {
-            throw new CsvFileLoader.CsvParseException("CSV файл имеет недопустимый вид", ex.getCause());
+        } catch (IllegalArgumentException ex) {
+            throw new FileLoadException("CSV файл имеет недопустимый вид", ex.getCause());
         }
     }
 
@@ -125,16 +126,29 @@ public class CsvFileLoader {
     }
 
 
-    static class CsvParseException extends RuntimeException {
-        public CsvParseException() {
+    static class FileLoadException extends RuntimeException {
+        public FileLoadException() {
             super();
         }
 
-        public CsvParseException(String message) {
+        public FileLoadException(String message) {
             super(message);
         }
 
-        public CsvParseException(String message, Throwable cause) {
+        public FileLoadException(String message, Throwable cause) {
+            super(message, cause);
+        }
+    }
+
+    private static class HistoryMismatchException extends RuntimeException {
+        public HistoryMismatchException() {
+        }
+
+        public HistoryMismatchException(String message) {
+            super(message);
+        }
+
+        public HistoryMismatchException(String message, Throwable cause) {
             super(message, cause);
         }
     }
