@@ -1,22 +1,18 @@
 package tasktracker.manager;
 
 import tasktracker.taskdata.*;
-import tasktracker.util.CsvConstructor;
-import tasktracker.util.CsvParser;
+import tasktracker.manager.util.csv.CsvFileLoader;
+import tasktracker.manager.util.csv.CsvFileSaver;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    // todo put file.txt to resources
-    String file;
+    CsvFileSaver saver;
 
     public FileBackedTaskManager(String file) {
         super();
-        this.file = file;
+        this.saver = new CsvFileSaver(file, this);
     }
 
     public FileBackedTaskManager(HashMap<Long, Task> tasks,
@@ -26,123 +22,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                                  long id,
                                  String file) {
         super(tasks, epics, subtasks, historyManager, id);
-        this.file = file;
-    }
-
-    //todo исправить айдишники
-    public static FileBackedTaskManager loadFromFile(File file) {
-        HashMap<Long, Task> tasks = new HashMap<>();
-        HashMap<Long, EpicTask> epics = new HashMap<>();
-        HashMap<Long, Subtask> subtasks = new HashMap<>();
-        List<Long> historyIDs;
-        HistoryManager historyManager = new InMemoryHistoryManager();
-        long id = 0;
-        Task currentTask;
-        try (BufferedReader reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8))) {
-            String line = reader.readLine();
-            while (reader.ready()) {
-                line = reader.readLine();
-                if (line.isBlank()) {
-                    break;
-                }
-                currentTask = taskFromString(line);
-                if (currentTask instanceof EpicTask) {
-                    epics.put(currentTask.getID(), (EpicTask) currentTask);
-                } else if (currentTask instanceof Subtask) {
-                    subtasks.put(currentTask.getID(), (Subtask) currentTask);
-                } else {
-                    tasks.put(currentTask.getID(), currentTask);
-                }
-                if (id < currentTask.getID()) {
-                    id = currentTask.getID();
-                }
-            }
-            line = reader.readLine();
-            historyIDs = historyFromString(line);
-        } catch (IOException ex) {
-            throw new CsvParseException("Не могу прочитать CSV файл", ex.getCause());
-        }
-        matchEpicsWithSubtasks(epics, subtasks);
-        updateHistoryManager(historyManager, historyIDs, tasks, epics, subtasks);
-        return new FileBackedTaskManager(tasks, epics, subtasks, historyManager, id, file.getPath());
-    }
-
-    private static void updateHistoryManager(HistoryManager historyManager,
-                                             List<Long> historyIDs,
-                                             HashMap<Long, Task> tasks,
-                                             HashMap<Long, EpicTask> epics,
-                                             HashMap<Long, Subtask> subtasks) {
-        Task task;
-        for (long id : historyIDs) {
-            task = tasks.get(id);
-            if (task == null) {
-                task = epics.get(id);
-            }
-            if (task == null) {
-                task = subtasks.get(id);
-            }
-            if (task == null) {
-                throw new CsvParseException("В истории обнаружена не существующая задача");
-            }
-            historyManager.add(task);
-
-// todo cleanup
-//            if (tasks.get(id) != null) {
-//                historyManager.add(tasks.get(id));
-//            } else if (epics.get(id) != null) {
-//                historyManager.add(epics.get(id));
-//            } else if (subtasks.get(id) != null) {
-//                historyManager.add(subtasks.get(id));
-//            } else {
-//                throw new CsvParseException("В истории обнаружена не существующая задача");
-//            }
-        }
-    }
-
-    private static void matchEpicsWithSubtasks(final HashMap<Long, EpicTask> epics,
-                                               final HashMap<Long, Subtask> subtasks) {
-        for (Subtask subtask : subtasks.values()) {
-            long epicID = subtask.getEpicTaskID();
-            if (epics.containsKey(epicID)) {
-                epics.get(epicID).addSubtask(subtask.getID());
-            } else {
-                throw new CsvParseException("Найдена подзадача не привязанная к эпику");
-            }
-        }
-    }
-
-    private static Task taskFromString(String value) {
-        try {
-            List<String> values = new ArrayList<>();
-            CsvParser.parse(value, values);
-            long id = Long.parseLong(values.get(0));
-            TaskType type = TaskType.valueOf(values.get(1));
-            String name = values.get(2);
-            TaskStatus status = TaskStatus.valueOf(values.get(3));
-            String description = values.get(4);
-            switch (type) {
-                case TASK:
-                    return new Task(id, status, name, description);
-                case EPIC:
-                    return new EpicTask(id, status, name, description);
-                case SUBTASK:
-                    long epicID = Long.parseLong(values.get(5));
-                    return new Subtask(id, epicID, status, name, description);
-                default:
-                    throw new CsvParseException("Неизвестный тип задачи");
-            }
-        } catch (IllegalArgumentException | NullPointerException ex) {
-            throw new CsvParseException("CSV файл имеет недопустимый вид", ex.getCause());
-        }
-    }
-
-    private static List<Long> historyFromString(String value) {
-        List<Long> resultList = new ArrayList<>();
-        String[] ids = value.split(",");
-        for (String id : ids) {
-            resultList.add(Long.parseLong(id));
-        }
-        return resultList;
+        this.saver = new CsvFileSaver(file, this);
     }
 
     @Override
@@ -248,83 +128,11 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     private void save() {
-        StringBuilder builder = new StringBuilder("id,type,name,status,description,epic");
-        builder.append(System.lineSeparator());
-        appendTasksInCsv(builder);
-        builder.append(System.lineSeparator());
-        builder.append(historyToString(getHistoryManager()));
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file, StandardCharsets.UTF_8))) {
-            writer.write(builder.toString());
-        } catch (IOException ex) {
-            throw new ManagerSaveException(ex.getMessage(), ex.getCause());
-        }
+        saver.save();
     }
 
-    private void appendTasksInCsv(final StringBuilder builder) {
-        for (Task task : getTasks()) {
-            String[] values = convertTaskToStrings(task, TaskType.TASK);
-            String taskLine = CsvConstructor.constructLine(values);
-            builder.append(taskLine);
-        }
-        for (EpicTask epic : getEpicTasks()) {
-            String[] values = convertTaskToStrings(epic, TaskType.EPIC);
-            String epicLine = CsvConstructor.constructLine(values);
-            builder.append(epicLine);
-        }
-        for (Subtask subtask : getSubtasks()) {
-            String[] values = convertTaskToStrings(subtask, TaskType.SUBTASK);
-            String subtaskLine = CsvConstructor.constructLine(values);
-            builder.append(subtaskLine);
-        }
-    }
-
-    private String[] convertTaskToStrings(Task task, TaskType type) {
-        if (type == TaskType.SUBTASK) {
-            return new String[]{String.valueOf(task.getID()),
-                    type.name(),
-                    task.getName(),
-                    task.getStatus().name(),
-                    task.getDescription(),
-                    String.valueOf(((Subtask) task).getEpicTaskID())};
-        }
-        return new String[]{String.valueOf(task.getID()),
-                type.name(),
-                task.getName(),
-                task.getStatus().name(),
-                task.getDescription()};
-    }
-
-    private String historyToString(HistoryManager history) {
-        StringBuilder builder = new StringBuilder();
-        for (Task task : history.getHistory()) {
-            builder.append(task.getID());
-            builder.append(",");
-        }
-        return builder.toString();
-    }
-
-    static class ManagerSaveException extends RuntimeException {
-        public ManagerSaveException() {
-            super();
-        }
-
-        public ManagerSaveException(String message, Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    static class CsvParseException extends RuntimeException {
-        public CsvParseException() {
-            super();
-        }
-
-        public CsvParseException(String message) {
-            super(message);
-        }
-
-        public CsvParseException(String message, Throwable cause) {
-            super(message, cause);
-        }
+    public static FileBackedTaskManager loadFromFile(File file) {
+        return CsvFileLoader.load(file);
     }
 
     public static void main(String[] args) {
@@ -337,6 +145,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         Subtask subtask = new Subtask(epic.getID(), "Кладовая", "Убери в кладовой");
         EpicTask epic1 = new EpicTask("Выучи принцыпы кастыльно-ориентированного программирования",
                 "Инкастыляция, накастыливание и поликастылизм");
+        manager.createSubtask(subtask);
+        manager.createEpicTask(epic1);
         epic1.setStatus(TaskStatus.DONE);
         subtask.setStatus(TaskStatus.IN_PROGRESS);
         Task task1 = manager.getTask(2);

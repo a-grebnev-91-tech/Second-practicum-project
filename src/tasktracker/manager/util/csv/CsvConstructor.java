@@ -1,4 +1,4 @@
-package tasktracker.util;
+package tasktracker.manager.util.csv;
 
 public class CsvConstructor {
     public static String constructLine(String... values) {
