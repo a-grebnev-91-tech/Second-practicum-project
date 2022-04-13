@@ -3,6 +3,7 @@ package tasktracker.manager;
 import tasktracker.taskdata.*;
 import tasktracker.manager.util.csv.CsvFileLoader;
 import tasktracker.manager.util.csv.CsvFileSaver;
+import tasktracker.test.FifthSprintTest;
 
 import java.io.*;
 import java.util.HashMap;
@@ -136,22 +137,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     public static void main(String[] args) {
-        String file = "resources" + File.separator + "file.txt";
-        TaskManager manager = Managers.getFileBackedManager(file);
-        Task task = new Task("Сделай паузу", "Скушай \"Twix\"");
-        EpicTask epic = new EpicTask("Генеральная уборка", "Весна - время приключений");
-        manager.createTask(task);
-        manager.createEpicTask(epic);
-        Subtask subtask = new Subtask(epic.getID(), "Кладовая", "Убери в кладовой");
-        EpicTask epic1 = new EpicTask("Выучи принцыпы кастыльно-ориентированного программирования",
-                "Инкастыляция, накастыливание и поликастылизм");
-        manager.createSubtask(subtask);
-        manager.createEpicTask(epic1);
-        epic1.setStatus(TaskStatus.DONE);
-        subtask.setStatus(TaskStatus.IN_PROGRESS);
-        FileBackedTaskManager managerFromFile = FileBackedTaskManager.loadFromFile(new File(file));
-        managerFromFile.getTask(1);
-        managerFromFile.getEpicTask(2);
-        managerFromFile.getSubtask(3);
+        FifthSprintTest.test();
     }
 }

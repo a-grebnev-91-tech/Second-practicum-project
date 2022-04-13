@@ -1,4 +1,4 @@
-package tasktracker;
+package tasktracker.test;
 
 import tasktracker.manager.*;
 import tasktracker.taskdata.EpicTask;
@@ -8,7 +8,7 @@ import tasktracker.taskdata.TaskStatus;
 
 import java.util.List;
 
-public class Main {
+public class FourthSprintTest {
 
     private static TaskManager manager;
 
