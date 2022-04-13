@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 public class FifthSprintTest {
 
     private static TaskManager manager;
-    private static String file = "resources" + File.separator + "file.txt";
+    private static String file = "resources" + File.separator + "file.csv";
 
     public static void test() {
         System.out.println("Создадим мэнеджер, пишущий в файл и немного его потыкаем\n");
