@@ -14,27 +14,27 @@ public class HistoryNode {
         this.data = task.clone();
     }
 
-    public HistoryNode getPrev() {
-        return prev;
-    }
-
-    public void setPrev(HistoryNode prev) {
-        this.prev = prev;
+    public Task getData() {
+        return data.clone();
     }
 
     public HistoryNode getNext() {
         return next;
     }
 
-    public void setNext(HistoryNode next) {
-        this.next = next;
-    }
-
-    public Task getData() {
-        return data.clone();
+    public HistoryNode getPrev() {
+        return prev;
     }
 
     public void setData(Task data) {
         this.data = data.clone();
+    }
+
+    public void setNext(HistoryNode next) {
+        this.next = next;
+    }
+
+    public void setPrev(HistoryNode prev) {
+        this.prev = prev;
     }
 }

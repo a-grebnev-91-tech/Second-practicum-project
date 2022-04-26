@@ -6,45 +6,45 @@ import java.util.List;
 
 public interface TaskManager {
 
-    List<Task> getTasks();
+    boolean createEpicTask(EpicTask epicTask);
+
+    boolean createSubtask(Subtask subtask);
+
+    boolean createTask(Task task);
+
+    EpicTask getEpicTask(long id);
 
     List<EpicTask> getEpicTasks();
 
-    List<Subtask> getSubtasks();
-
-    List<Task> history();
+    List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
 
     HistoryManager getHistoryManager();
 
-    void removeAllTasks();
+    Subtask getSubtask(long id);
+
+    List<Subtask> getSubtasks();
+
+    Task getTask(long id);
+
+    List<Task> getTasks();
+
+    List<Task> history();
 
     void removeAllEpicTasks();
 
     void removeAllSubtasks();
 
-    Task getTask(long id);
-
-    EpicTask getEpicTask(long id);
-
-    Subtask getSubtask(long id);
-
-    boolean createTask(Task task);
-
-    boolean createEpicTask(EpicTask epicTask);
-
-    boolean createSubtask(Subtask subtask);
-
-    boolean updateTask(Task task);
-
-    boolean updateEpicTask(EpicTask epicTask);
-
-    boolean updateSubtask(Subtask subtask);
-
-    boolean removeTask(long id);
+    void removeAllTasks();
 
     boolean removeEpicTask(long id);
 
     boolean removeSubtask(long id);
 
-    List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
+    boolean removeTask(long id);
+
+    boolean updateEpicTask(EpicTask epicTask);
+
+    boolean updateSubtask(Subtask subtask);
+
+    boolean updateTask(Task task);
 }

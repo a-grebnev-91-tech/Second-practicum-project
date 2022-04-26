@@ -8,13 +8,13 @@ public interface HistoryManager extends Cloneable {
 
     void add(Task task);
 
-    void remove(Long id);
-
-    void remove(Collection<Long> ids);
+    HistoryManager clone();
 
     List<Task> getHistory();
 
-    HistoryManager clone();
+    void remove(Long id);
+
+    void remove(Collection<Long> ids);
 
     void updateTask(Task task);
 }

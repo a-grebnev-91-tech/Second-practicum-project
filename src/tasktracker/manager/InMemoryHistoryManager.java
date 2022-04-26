@@ -8,18 +8,19 @@ import tasktracker.historydata.HistoryNode;
 public class InMemoryHistoryManager implements HistoryManager, Cloneable {
 
     private final Map<Long, HistoryNode> history;
-    private final LinkedHistoryList list;
+
+    private final LinkedHistoryList historyList;
 
     private final int MAX_HISTORY_SIZE = 10;
 
     public InMemoryHistoryManager() {
         history = new HashMap<>();
-        list = new LinkedHistoryList();
+        historyList = new LinkedHistoryList();
     }
 
     public InMemoryHistoryManager(Map<Long, HistoryNode> history, LinkedHistoryList list) {
         this.history = history;
-        this.list = list;
+        this.historyList = list;
     }
 
     @Override
@@ -27,16 +28,26 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
         final Task taskToAdd = task.clone();
         long id = taskToAdd.getID();
         remove(id);
-        if (list.size() >= MAX_HISTORY_SIZE) {
-            remove(list.getFirstNodeID());
+        if (historyList.size() >= MAX_HISTORY_SIZE) {
+            remove(historyList.getFirstNodeID());
         }
-        history.put(id, list.linkLast(task));
+        history.put(id, historyList.linkLast(task));
+    }
+
+    @Override
+    public InMemoryHistoryManager clone() {
+        return new InMemoryHistoryManager(this.history, this.historyList);
+    }
+
+    @Override
+    public List<Task> getHistory() {
+        return historyList.getTasks();
     }
 
     @Override
     public void remove(Long id) {
         if (history.containsKey(id)) {
-            list.removeNode(history.remove(id));
+            historyList.removeNode(history.remove(id));
         }
     }
 
@@ -45,11 +56,6 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
         for (Long id : IDs) {
             remove(id);
         };
-    }
-
-     @Override
-    public List<Task> getHistory() {
-        return list.getTasks();
     }
 
      @Override
@@ -63,15 +69,30 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
         }
      }
 
-    @Override
-    public InMemoryHistoryManager clone() {
-        return new InMemoryHistoryManager(this.history, this.list);
-    }
-
     private static class LinkedHistoryList {
         private HistoryNode first;
         private HistoryNode last;
         private int size;
+
+        public long getFirstNodeID() {
+            if (first != null)
+                return first.getData().getID();
+            else
+                return 0;
+        }
+
+        private void fillTasksList(List<Task> tasks, HistoryNode node) {
+            if (node == null)
+                return;
+            fillTasksList(tasks, node.getPrev());
+            tasks.add(node.getData().clone());
+        }
+
+        public List<Task> getTasks() {
+            List<Task> tasks = new ArrayList<>();
+            fillTasksList(tasks, last);
+            return tasks;
+        }
 
         public HistoryNode linkLast(Task task) {
             HistoryNode newNode = new HistoryNode(task);
@@ -91,19 +112,6 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
             return this.size;
         }
 
-        public List<Task> getTasks() {
-            List<Task> tasks = new ArrayList<>();
-            fillTasksList(tasks, last);
-            return tasks;
-        }
-
-        public long getFirstNodeID() {
-            if (first != null)
-                return first.getData().getID();
-            else
-                return 0;
-        }
-
         public void removeNode(HistoryNode node) {
             if (node == null)
                 return;
@@ -118,13 +126,6 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
             else
                 last = prev;
             size--;
-        }
-
-        private void fillTasksList(List<Task> tasks, HistoryNode node) {
-            if (node == null)
-                return;
-            fillTasksList(tasks, node.getPrev());
-            tasks.add(node.getData().clone());
         }
     }
 }

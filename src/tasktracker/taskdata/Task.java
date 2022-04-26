@@ -31,54 +31,9 @@ public class Task implements Cloneable{
         this.id = id;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        if (name != null && !name.isBlank())
-            this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description != null ? description : "";
-    }
-
-    public long getID() {
-        return id;
-    }
-
-    public void setID(long id) {
-        if (id >= 0)
-            this.id = id;
-    }
-
-    public TaskStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(TaskStatus status) {
-        if (status != null)
-            this.status = status;
-    }
-
     @Override
     public Task clone() {
         return new Task(this.id, this.status, this.name, this .description);
-    }
-
-    @Override
-    public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", status=" + status +
-                ", name='" + name + '\'' +
-                ", description.length()='" + (description != null ? description.length() : null) + '\'' +
-                '}';
     }
 
     @Override
@@ -94,6 +49,22 @@ public class Task implements Cloneable{
         return description != null ? description.equals(task.description) : task.description == null;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public long getID() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
     @Override
     public int hashCode() {
         int result = (int) (id ^ (id >>> 32));
@@ -101,5 +72,34 @@ public class Task implements Cloneable{
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         return result;
+    }
+
+    public void setDescription(String description) {
+        this.description = description != null ? description : "";
+    }
+
+    public void setID(long id) {
+        if (id >= 0)
+            this.id = id;
+    }
+
+    public void setName(String name) {
+        if (name != null && !name.isBlank())
+            this.name = name;
+    }
+
+    public void setStatus(TaskStatus status) {
+        if (status != null)
+            this.status = status;
+    }
+
+    @Override
+    public String toString() {
+        return "Task{" +
+                "id=" + id +
+                ", status=" + status +
+                ", name='" + name + '\'' +
+                ", description.length()='" + (description != null ? description.length() : null) + '\'' +
+                '}';
     }
 }

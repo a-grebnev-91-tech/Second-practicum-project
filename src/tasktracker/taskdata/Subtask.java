@@ -36,17 +36,6 @@ public class Subtask extends Task {
     }
 
     @Override
-    public String toString() {
-        return "Subtask{" +
-                "id=" + getID() +
-                ", epicTaskID=" + epicTaskID +
-                ", status=" + getStatus() +
-                ", name='" + getName() + '\'' +
-                ", description.length()='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
-                '}';
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -62,5 +51,16 @@ public class Subtask extends Task {
         int result = super.hashCode();
         result = 31 * result + (int) (epicTaskID ^ (epicTaskID >>> 32));
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Subtask{" +
+                "id=" + getID() +
+                ", epicTaskID=" + epicTaskID +
+                ", status=" + getStatus() +
+                ", name='" + getName() + '\'' +
+                ", description.length()='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
+                '}';
     }
 }

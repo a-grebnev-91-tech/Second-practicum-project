@@ -34,32 +34,9 @@ public class EpicTask extends Task {
             subtasksID.add(subtaskID);
     }
 
-    public boolean removeSubtask(long subtaskID) {
-        return subtasksID.remove(subtaskID);
-    }
-
-    public void removeAllSubtasks() {
-        subtasksID.clear();
-    }
-
-    public ArrayList<Long> getSubtasksID() {
-        return new ArrayList<>(subtasksID);
-    }
-
     @Override
     public EpicTask clone() {
         return new EpicTask(getID(), getSubtasksID(), getStatus(), getName(), getDescription());
-    }
-
-    @Override
-    public String toString() {
-        return "EpicTask{" +
-                "id=" + getID() +
-                ", status=" + getStatus() +
-                ", name='" + getName() + '\'' +
-                ", description.length='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
-                ", subtasksID=" + subtasksID +
-                '}';
     }
 
     @Override
@@ -73,10 +50,33 @@ public class EpicTask extends Task {
         return subtasksID != null ? subtasksID.equals(epicTask.subtasksID) : epicTask.subtasksID == null;
     }
 
+    public ArrayList<Long> getSubtasksID() {
+        return new ArrayList<>(subtasksID);
+    }
+
     @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (subtasksID != null ? subtasksID.hashCode() : 0);
         return result;
+    }
+
+    public void removeAllSubtasks() {
+        subtasksID.clear();
+    }
+
+    public boolean removeSubtask(long subtaskID) {
+        return subtasksID.remove(subtaskID);
+    }
+
+    @Override
+    public String toString() {
+        return "EpicTask{" +
+                "id=" + getID() +
+                ", status=" + getStatus() +
+                ", name='" + getName() + '\'' +
+                ", description.length='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
+                ", subtasksID=" + subtasksID +
+                '}';
     }
 }
