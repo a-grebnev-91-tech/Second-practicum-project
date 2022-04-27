@@ -1,4 +1,4 @@
-package tasktracker.taskdata;
+package tasktracker.taskdata.exceptions;
 
 public class TaskInvalidException extends RuntimeException {
 

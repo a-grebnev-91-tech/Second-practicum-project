@@ -1,18 +1,13 @@
 package tasktracker.taskdata;
 
+import tasktracker.taskdata.exceptions.TaskInvalidException;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 public class Subtask extends Task {
 
     private final long epicTaskID;
-
-    public Subtask(String name, String description) {
-        super(name,description);
-        throw new TaskInvalidException("Cannot create subtask that isn't linked to a epicTask");
-    }
-
-    public Subtask(long id, TaskStatus status, String name, String description) {
-        super(id, status, name, description);
-        throw new TaskInvalidException("Cannot create subtask that isn't linked to a epicTask");
-    }
 
     public Subtask(long epicTaskID, String name, String description) {
         super(name, description);
@@ -21,18 +16,51 @@ public class Subtask extends Task {
         this.epicTaskID = epicTaskID;
     }
 
-    public Subtask(long id, long epicTaskID, TaskStatus status, String name, String description) {
+    public Subtask(long epicTaskID, String name, String description, LocalDateTime startTime, Duration duration) {
+        super(name, description, startTime, duration);
+        if (epicTaskID < 1)
+            throw new TaskInvalidException("Cannot create subtask with invalid epicTaskID");
+        this.epicTaskID = epicTaskID;
+    }
+
+    public Subtask(long id,
+                   long epicTaskID,
+                   TaskStatus status,
+                   String name,
+                   String description) {
         super(id, status, name, description);
+        if (epicTaskID < 1)
+            throw new TaskInvalidException("Cannot create subtask with invalid epicTaskID");
+        this.epicTaskID = epicTaskID;
+    }
+
+    public Subtask(long id,
+                   long epicTaskID,
+                   TaskStatus status,
+                   String name,
+                   String description,
+                   LocalDateTime startTime,
+                   Duration duration) {
+        super(id, status, name, description, startTime, duration);
+        if (epicTaskID < 1)
+            throw new TaskInvalidException("Cannot create subtask with invalid epicTaskID");
         this.epicTaskID = epicTaskID;
     }
 
     public long getEpicTaskID() {
-        return  this.epicTaskID;
+        return this.epicTaskID;
     }
 
     @Override
     public Subtask clone() {
-        return new Subtask(getID(), this.epicTaskID, getStatus(), getName(), getDescription());
+        return new Subtask(getID(),
+                this.epicTaskID,
+                getStatus(),
+                getName(),
+                getDescription(),
+                getStartTime(),
+                getDuration()
+        );
     }
 
     @Override
@@ -51,16 +79,5 @@ public class Subtask extends Task {
         int result = super.hashCode();
         result = 31 * result + (int) (epicTaskID ^ (epicTaskID >>> 32));
         return result;
-    }
-
-    @Override
-    public String toString() {
-        return "Subtask{" +
-                "id=" + getID() +
-                ", epicTaskID=" + epicTaskID +
-                ", status=" + getStatus() +
-                ", name='" + getName() + '\'' +
-                ", description.length()='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
-                '}';
     }
 }

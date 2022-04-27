@@ -1,6 +1,9 @@
 package tasktracker.taskdata;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class EpicTask extends Task {
     private final ArrayList<Long> subtasksID;
@@ -10,11 +13,9 @@ public class EpicTask extends Task {
         subtasksID = new ArrayList<>();
     }
 
-    public EpicTask(String name, String description, ArrayList<Long> subtasksID) {
-        super(name, description);
-        this.subtasksID = new ArrayList<>();
-        if (subtasksID != null)
-            this.subtasksID.addAll(subtasksID);
+    public EpicTask(String name, String description, LocalDateTime startTime, Duration duration) {
+        super(name, description, startTime, duration);
+        subtasksID = new ArrayList<>();
     }
 
     public EpicTask(long id, TaskStatus status, String name, String description) {
@@ -22,12 +23,29 @@ public class EpicTask extends Task {
         subtasksID = new ArrayList<>();
     }
 
-    public EpicTask(long id, ArrayList<Long> subtasksID, TaskStatus status, String name, String description) {
-        super(id, status, name, description );
+    public EpicTask(long id,
+                    TaskStatus status,
+                    String name,
+                    String description,
+                    LocalDateTime startTime,
+                    Duration duration) {
+        super(id, status, name, description, startTime, duration);
+        subtasksID = new ArrayList<>();
+    }
+
+    public EpicTask(long id,
+                    ArrayList<Long> subtasksID,
+                    TaskStatus status,
+                    String name,
+                    String description,
+                    LocalDateTime startTime,
+                    Duration duration) {
+        super(id, status, name, description, startTime, duration);
         this.subtasksID = new ArrayList<>();
         if (subtasksID != null)
             this.subtasksID.addAll(subtasksID);
     }
+
 
     public void addSubtask(long subtaskID) {
         if (subtaskID > 0)
@@ -36,7 +54,14 @@ public class EpicTask extends Task {
 
     @Override
     public EpicTask clone() {
-        return new EpicTask(getID(), getSubtasksID(), getStatus(), getName(), getDescription());
+        return new EpicTask(
+                getID(),
+                getSubtasksID(),
+                getStatus(),
+                getName(),
+                getDescription(),
+                getStartTime(),
+                getDuration());
     }
 
     @Override
@@ -47,7 +72,7 @@ public class EpicTask extends Task {
 
         EpicTask epicTask = (EpicTask) o;
 
-        return subtasksID != null ? subtasksID.equals(epicTask.subtasksID) : epicTask.subtasksID == null;
+        return Objects.equals(subtasksID, epicTask.subtasksID);
     }
 
     public ArrayList<Long> getSubtasksID() {
@@ -69,14 +94,4 @@ public class EpicTask extends Task {
         return subtasksID.remove(subtaskID);
     }
 
-    @Override
-    public String toString() {
-        return "EpicTask{" +
-                "id=" + getID() +
-                ", status=" + getStatus() +
-                ", name='" + getName() + '\'' +
-                ", description.length='" + (getDescription() != null ? getDescription().length() : null) + '\'' +
-                ", subtasksID=" + subtasksID +
-                '}';
-    }
 }

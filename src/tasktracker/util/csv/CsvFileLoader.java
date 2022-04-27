@@ -1,9 +1,10 @@
-package tasktracker.manager.util.csv;
+package tasktracker.util.csv;
 
 import tasktracker.manager.FileBackedTaskManager;
 import tasktracker.manager.HistoryManager;
 import tasktracker.manager.InMemoryHistoryManager;
 import tasktracker.taskdata.*;
+import tasktracker.taskdata.exceptions.TaskInvalidException;
 
 import java.io.BufferedReader;
 import java.io.File;
