@@ -1,31 +1,34 @@
 package tasktracker.manager;
 
 import tasktracker.taskdata.*;
-import tasktracker.taskdata.exceptions.TaskInvalidException;
+import tasktracker.taskdata.TaskInvalidException;
 
 import java.util.*;
 
 public class InMemoryTaskManager implements TaskManager {
 
+    private final Map<Long, EpicTask> epicTasks;
     private final HistoryManager historyManager;
     private long id;
-    private final Map<Long, EpicTask> epicTasks;
-    private final Map<Long, Task> tasks;
+    private final TasksPrioritizer tasksPrioritizer;
     private final Map<Long, Subtask> subtasks;
+    private final Map<Long, Task> tasks;
 
     public InMemoryTaskManager() {
-        tasks = new HashMap<>();
-        epicTasks = new HashMap<>();
-        subtasks = new HashMap<>();
         historyManager = new InMemoryHistoryManager();
         id = 1;
+        epicTasks = new HashMap<>();
+        tasksPrioritizer = new TasksPrioritizer();
+        subtasks = new HashMap<>();
+        tasks = new HashMap<>();
     }
 
     public InMemoryTaskManager(Map<Long, Task> tasks,
                                Map<Long, EpicTask> epicTasks,
                                Map<Long, Subtask> subtasks,
                                HistoryManager historyManager,
-                               long id) {
+                               long id,
+                               TasksPrioritizer tasksPrioritizer) {
         this.tasks = new HashMap<>();
         for (Map.Entry<Long, Task> taskEntry : tasks.entrySet()) {
             this.tasks.put(taskEntry.getKey(), taskEntry.getValue().clone());
@@ -40,6 +43,9 @@ public class InMemoryTaskManager implements TaskManager {
         }
         this.historyManager = historyManager.clone();
         this.id = id;
+        this.tasksPrioritizer = tasksPrioritizer;
+
+//        prioritizedTasks = new TreeSet<>((t1, t2) -> t1.getStartTime().compareTo(t2.getStartTime()));
     }
 
     @Override
@@ -108,6 +114,11 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public HistoryManager getHistoryManager() {
         return historyManager.clone();
+    }
+
+    @Override
+    public List<Task> getTasksPrioritizer() {
+        return null;
     }
 
     @Override

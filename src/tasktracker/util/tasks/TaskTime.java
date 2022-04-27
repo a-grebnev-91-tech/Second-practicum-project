@@ -1,6 +1,6 @@
 package tasktracker.util.tasks;
 
-import tasktracker.taskdata.exceptions.TaskTimeException;
+import tasktracker.taskdata.TaskTimeException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

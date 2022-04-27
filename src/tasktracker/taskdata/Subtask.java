@@ -1,7 +1,5 @@
 package tasktracker.taskdata;
 
-import tasktracker.taskdata.exceptions.TaskInvalidException;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 

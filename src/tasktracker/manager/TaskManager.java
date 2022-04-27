@@ -3,6 +3,7 @@ package tasktracker.manager;
 import tasktracker.taskdata.*;
 
 import java.util.List;
+import java.util.TreeSet;
 
 public interface TaskManager {
 
@@ -19,6 +20,8 @@ public interface TaskManager {
     List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
 
     HistoryManager getHistoryManager();
+
+    List<Task> getTasksPrioritizer();
 
     Subtask getSubtask(long id);
 
