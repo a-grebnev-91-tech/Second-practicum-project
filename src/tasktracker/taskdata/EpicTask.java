@@ -80,6 +80,11 @@ public class EpicTask extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.EPIC;
+    }
+
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (subtasksID != null ? subtasksID.hashCode() : 0);

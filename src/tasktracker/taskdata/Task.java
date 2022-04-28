@@ -14,6 +14,7 @@ public class Task implements Cloneable {
     private String name;
     private TaskStatus status;
     private TaskTime taskTime;
+    public final TaskType type = TaskType.TASK;
 
     public Task(String name, String description) {
         if (name == null || name.isBlank())
@@ -105,6 +106,10 @@ public class Task implements Cloneable {
     public LocalDateTime getStartTime() {
         if (taskTime == null) return null;
         return taskTime.getStartTime();
+    }
+
+    public TaskType getType() {
+        return TaskType.TASK;
     }
 
     @Override

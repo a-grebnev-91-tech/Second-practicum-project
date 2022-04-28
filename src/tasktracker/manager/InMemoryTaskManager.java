@@ -2,6 +2,8 @@ package tasktracker.manager;
 
 import tasktracker.taskdata.*;
 import tasktracker.taskdata.TaskInvalidException;
+import tasktracker.util.tasks.TaskValidator;
+import tasktracker.util.tasks.ValidationMessage;
 
 import java.util.*;
 
@@ -10,6 +12,7 @@ public class InMemoryTaskManager implements TaskManager {
     private final Map<Long, EpicTask> epicTasks;
     private final HistoryManager historyManager;
     private long id;
+    private final TaskValidator validator;
     private final TasksPrioritizer tasksPrioritizer;
     private final Map<Long, Subtask> subtasks;
     private final Map<Long, Task> tasks;
@@ -21,14 +24,15 @@ public class InMemoryTaskManager implements TaskManager {
         tasksPrioritizer = new TasksPrioritizer();
         subtasks = new HashMap<>();
         tasks = new HashMap<>();
+        validator = new TaskValidator(epicTasks, subtasks, tasks);
+
     }
 
     public InMemoryTaskManager(Map<Long, Task> tasks,
                                Map<Long, EpicTask> epicTasks,
                                Map<Long, Subtask> subtasks,
                                HistoryManager historyManager,
-                               long id,
-                               TasksPrioritizer tasksPrioritizer) {
+                               long id) {
         this.tasks = new HashMap<>();
         for (Map.Entry<Long, Task> taskEntry : tasks.entrySet()) {
             this.tasks.put(taskEntry.getKey(), taskEntry.getValue().clone());
@@ -43,22 +47,21 @@ public class InMemoryTaskManager implements TaskManager {
         }
         this.historyManager = historyManager.clone();
         this.id = id;
-        this.tasksPrioritizer = tasksPrioritizer;
-
-//        prioritizedTasks = new TreeSet<>((t1, t2) -> t1.getStartTime().compareTo(t2.getStartTime()));
+        this.tasksPrioritizer = new TasksPrioritizer();
+        this.validator = new TaskValidator(this.epicTasks, this.subtasks, this.tasks);
     }
 
     @Override
     public boolean createEpicTask(EpicTask epicTask) {
-        if (isEpicTaskIsValid(epicTask)) {
+        ValidationMessage message = validator.canCreate(epicTask);
+        if (message.isValid()) {
             long currentID = generateId();
             epicTask.setID(currentID);
             updateEpicStatus(epicTask);
             epicTask = epicTask.clone();
             epicTasks.put(currentID, epicTask);
-            return epicTasks.containsValue(epicTask);
         }
-        return false;
+        return message.isValid();
     }
 
     @Override

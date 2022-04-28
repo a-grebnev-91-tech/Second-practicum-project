@@ -73,6 +73,11 @@ public class Subtask extends Task {
     }
 
     @Override
+    public TaskType getType() {
+        return TaskType.SUBTASK;
+    }
+
+    @Override
     public int hashCode() {
         int result = super.hashCode();
         result = 31 * result + (int) (epicTaskID ^ (epicTaskID >>> 32));
