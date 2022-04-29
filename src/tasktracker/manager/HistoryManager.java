@@ -2,6 +2,7 @@ package tasktracker.manager;
 
 import java.util.Collection;
 import java.util.List;
+
 import tasktracker.taskdata.Task;
 
 public interface HistoryManager extends Cloneable {

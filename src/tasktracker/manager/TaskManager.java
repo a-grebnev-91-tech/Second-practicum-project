@@ -7,10 +7,6 @@ import java.util.TreeSet;
 
 public interface TaskManager {
 
-    boolean createEpicTask(EpicTask epicTask);
-
-    boolean createSubtask(Subtask subtask);
-
     boolean createTask(Task task);
 
     EpicTask getEpicTask(long id);
@@ -20,8 +16,6 @@ public interface TaskManager {
     List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
 
     HistoryManager getHistoryManager();
-
-    List<Task> getTasksPrioritizer();
 
     Subtask getSubtask(long id);
 
@@ -39,15 +33,7 @@ public interface TaskManager {
 
     void removeAllTasks();
 
-    boolean removeEpicTask(long id);
-
-    boolean removeSubtask(long id);
-
     boolean removeTask(long id);
-
-    boolean updateEpicTask(EpicTask epicTask);
-
-    boolean updateSubtask(Subtask subtask);
 
     boolean updateTask(Task task);
 }

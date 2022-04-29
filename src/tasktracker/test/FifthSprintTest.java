@@ -13,7 +13,7 @@ public class FifthSprintTest {
     private static TaskManager manager;
     private static String file = "resources" + File.separator + "file.csv";
 
-    public static void test() {
+    public static void main(String[] args) {
         System.out.println("Создадим мэнеджер, пишущий в файл и немного его потыкаем\n");
         manager = Managers.getFileBackedManager(file);
         createSomeTasks();
@@ -50,9 +50,9 @@ public class FifthSprintTest {
         EpicTask epic1 = new EpicTask("Выучи принципы кастыльно-ориентированного программирования",
                 "Инкастыляция, накастыливание и поликастылизм");
         manager.createTask(task);
-        manager.createEpicTask(epic);
-        manager.createSubtask(subtask);
-        manager.createEpicTask(epic1);
+        manager.createTask(epic);
+        manager.createTask(subtask);
+        manager.createTask(epic1);
     }
 
     private static void getSomeTasks() {
@@ -65,7 +65,7 @@ public class FifthSprintTest {
     private static void finishEpic() {
         Subtask subTask = manager.getSubtask(3);
         subTask.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(subTask);
+        manager.updateTask(subTask);
     }
 
     private static void changeSomeManagerState() {
@@ -75,6 +75,6 @@ public class FifthSprintTest {
 
         Subtask subtask = manager.getSubtask(3);
         subtask.setDescription("Я сделяль");
-        manager.updateSubtask(subtask);
+        manager.updateTask(subtask);
     }
 }

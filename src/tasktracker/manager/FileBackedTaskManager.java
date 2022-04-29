@@ -27,20 +27,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public boolean createEpicTask(EpicTask epicTask) {
-        boolean result = super.createEpicTask(epicTask);
-        save();
-        return result;
-    }
-
-    @Override
-    public boolean createSubtask(Subtask subtask) {
-        boolean result = super.createSubtask(subtask);
-        save();
-        return result;
-    }
-
-    @Override
     public boolean createTask(Task task) {
         boolean result = super.createTask(task);
         save();
@@ -95,36 +81,8 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public boolean removeEpicTask(long id) {
-        boolean result = super.removeEpicTask(id);
-        save();
-        return result;
-    }
-
-    @Override
-    public boolean removeSubtask(long id) {
-        boolean result = super.removeSubtask(id);
-        save();
-        return result;
-    }
-
-    @Override
     public boolean removeTask(long id) {
         boolean result = super.removeTask(id);
-        save();
-        return result;
-    }
-
-    @Override
-    public boolean updateEpicTask(EpicTask epicTask) {
-        boolean result = super.updateEpicTask(epicTask);
-        save();
-        return result;
-    }
-
-    @Override
-    public boolean updateSubtask(Subtask subtask) {
-        boolean result = super.updateSubtask(subtask);
         save();
         return result;
     }

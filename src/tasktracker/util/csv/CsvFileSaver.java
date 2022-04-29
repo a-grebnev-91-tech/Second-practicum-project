@@ -14,9 +14,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 public class CsvFileSaver {
-    String file;
-    FileBackedTaskManager manager;
-    String fileHeader = "id,type,name,status,description,epic";
+    final String file;
+    final FileBackedTaskManager manager;
+    final String fileHeader = "id,type,name,status,description,epic";
 
     public CsvFileSaver (String file, FileBackedTaskManager manager) {
         this.file = file;

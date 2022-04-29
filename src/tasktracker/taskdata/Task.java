@@ -14,7 +14,6 @@ public class Task implements Cloneable {
     private String name;
     private TaskStatus status;
     private TaskTime taskTime;
-    public final TaskType type = TaskType.TASK;
 
     public Task(String name, String description) {
         if (name == null || name.isBlank())

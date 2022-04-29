@@ -68,8 +68,8 @@ public class FourthSprintTest {
     private static void changeStatusOfSomeNewTasks() {
         secondSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
         firstSubtaskForThirdEpic.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(secondSubtaskForThirdEpic);
-        manager.updateSubtask(firstSubtaskForThirdEpic);
+        manager.updateTask(secondSubtaskForThirdEpic);
+        manager.updateTask(firstSubtaskForThirdEpic);
     }
 
     private static void addMoreTasks() {
@@ -79,17 +79,17 @@ public class FourthSprintTest {
         manager.createTask(fourthTask);
 
         thirdEpic = new EpicTask("Готовься к эмиграции", "Пока не оказался в Северной Корее");
-        manager.createEpicTask(thirdEpic);
+        manager.createTask(thirdEpic);
         firstSubtaskForThirdEpic = new Subtask(thirdEpic.getID(), "Собирай манатки", "Пять пар трусов, "
                 + " пять пар носков. Загран паспорт.");
-        manager.createSubtask(firstSubtaskForThirdEpic);
+        manager.createTask(firstSubtaskForThirdEpic);
         secondSubtaskForThirdEpic = new Subtask(thirdEpic.getID(), "Угони трактор", "Нужно транспортное"
                 + " средство.");
-        manager.createSubtask(secondSubtaskForThirdEpic);
+        manager.createTask(secondSubtaskForThirdEpic);
 
 
         fourthEpic = new EpicTask("Пустой эпик", "Просто для тестирования.");
-        manager.createEpicTask(fourthEpic);
+        manager.createTask(fourthEpic);
     }
 
     private static void checkHistory() {
@@ -146,19 +146,19 @@ public class FourthSprintTest {
         manager.createTask(secondTask);
 
         firstEpic = new EpicTask("Самосовершенствование", "Стань лучшей версией себя");
-        manager.createEpicTask(firstEpic);
+        manager.createTask(firstEpic);
         firstSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Изучи Java", "Хоть жаба уродлива и медлительна"
                 + ", но кто из нас идеален");
-        manager.createSubtask(firstSubtaskForFirstEpic);
+        manager.createTask(firstSubtaskForFirstEpic);
         secondSubtaskForFirstEpic = new Subtask(firstEpic.getID(), "Переведи бабушку через дорогу", "До кучи");
-        manager.createSubtask(secondSubtaskForFirstEpic);
+        manager.createTask(secondSubtaskForFirstEpic);
 
 
         secondEpic = new EpicTask("Саморазрушение", "Не перетрудись с самосовершенствованием "
                 + "а то еще станешь сверхчеловеком.");
-        manager.createEpicTask(secondEpic);
+        manager.createTask(secondEpic);
         subtaskForSecondEpic = new Subtask(secondEpic.getID(), "Уйди в запой", "На неделю");
-        manager.createSubtask(subtaskForSecondEpic);
+        manager.createTask(subtaskForSecondEpic);
     }
 
     private static void printAllManagerTasks() {
@@ -183,20 +183,20 @@ public class FourthSprintTest {
         manager.updateTask(secondTask);
 
         firstSubtaskForFirstEpic.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(firstSubtaskForFirstEpic);
+        manager.updateTask(firstSubtaskForFirstEpic);
 
         subtaskForSecondEpic.setStatus(TaskStatus.IN_PROGRESS);
-        manager.updateSubtask(subtaskForSecondEpic);
+        manager.updateTask(subtaskForSecondEpic);
     }
 
     private static void makeDoneOneOfEpics() {
         secondSubtaskForFirstEpic.setStatus(TaskStatus.DONE);
-        manager.updateSubtask(secondSubtaskForFirstEpic);
+        manager.updateTask(secondSubtaskForFirstEpic);
     }
 
     private static void removeSomeTasks() {
-        manager.removeEpicTask(secondEpic.getID());
+        manager.removeTask(secondEpic.getID());
         manager.removeTask(firstTask.getID());
-        manager.removeSubtask(firstSubtaskForFirstEpic.getID());
+        manager.removeTask(firstSubtaskForFirstEpic.getID());
     }
 }

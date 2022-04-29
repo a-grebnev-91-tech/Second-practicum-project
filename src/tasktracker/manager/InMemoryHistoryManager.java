@@ -25,8 +25,8 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
 
     @Override
     public void add(final Task task) {
-        final Task taskToAdd = task.clone();
-        long id = taskToAdd.getID();
+        //TODO double check this (del clone)
+        long id = task.getID();
         remove(id);
         if (historyList.size() >= MAX_HISTORY_SIZE) {
             remove(historyList.getFirstNodeID());
@@ -55,19 +55,21 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
     public void remove(Collection<Long> IDs) {
         for (Long id : IDs) {
             remove(id);
-        };
+        }
+        ;
     }
 
-     @Override
-     public void updateTask(final Task task) {
+    @Override
+    public void updateTask(final Task task) {
         if (task == null)
             return;
         final Task taskToAdd = task.clone();
         HistoryNode currentNode = history.get(taskToAdd.getID());
         if (currentNode != null) {
             currentNode.setData(taskToAdd);
+
         }
-     }
+    }
 
     private static class LinkedHistoryList {
         private HistoryNode first;
@@ -96,7 +98,7 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
 
         public HistoryNode linkLast(Task task) {
             HistoryNode newNode = new HistoryNode(task);
-            if(size == 0) {
+            if (size == 0) {
                 first = newNode;
                 last = first;
             } else {
@@ -108,7 +110,7 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
             return newNode;
         }
 
-        public int size(){
+        public int size() {
             return this.size;
         }
 

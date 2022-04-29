@@ -1,5 +1,7 @@
 package tasktracker.taskdata;
 
+import tasktracker.util.tasks.TaskToString;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -82,5 +84,10 @@ public class Subtask extends Task {
         int result = super.hashCode();
         result = 31 * result + (int) (epicTaskID ^ (epicTaskID >>> 32));
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return TaskToString.getString(this);
     }
 }

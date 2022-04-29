@@ -1,5 +1,7 @@
 package tasktracker.taskdata;
 
+import tasktracker.util.tasks.TaskToString;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -47,9 +49,12 @@ public class EpicTask extends Task {
     }
 
 
-    public void addSubtask(long subtaskID) {
-        if (subtaskID > 0)
-            subtasksID.add(subtaskID);
+    public boolean addSubtask(long subtaskID) {
+        if (subtaskID < 1)
+            return false;
+        if (subtasksID.contains(subtaskID))
+            return false;
+        return subtasksID.add(subtaskID);
     }
 
     @Override
@@ -97,6 +102,11 @@ public class EpicTask extends Task {
 
     public boolean removeSubtask(long subtaskID) {
         return subtasksID.remove(subtaskID);
+    }
+
+    @Override
+    public String toString() {
+        return TaskToString.getString(this);
     }
 
 }
