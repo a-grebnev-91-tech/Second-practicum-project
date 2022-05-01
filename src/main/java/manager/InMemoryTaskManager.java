@@ -54,13 +54,15 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
-    public boolean createTask(Task task) {
+    public long createTask(Task task) {
         ValidationMessage message = validator.canCreate(task);
         if (message.isValid()) {
-            task.setID(generateId());
+            long id = generateId();
+            task.setID(id);
             vault.add(task.clone());
+            return id;
         }
-        return message.isValid();
+        return -1L;
     }
 
     @Override

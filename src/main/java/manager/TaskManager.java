@@ -7,7 +7,7 @@ import java.util.TreeSet;
 
 public interface TaskManager {
 
-    boolean createTask(Task task);
+    long createTask(Task task);
 
     EpicTask getEpicTask(long id);
 

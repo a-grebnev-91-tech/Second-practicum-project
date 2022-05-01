@@ -61,10 +61,10 @@ public class FifthSprintTest {
         //id 4
         EpicTask epic1 = new EpicTask("Выучи принципы кастыльно-ориентированного программирования",
                 "Инкастыляция, накастыливание и поликастылизм");
-        manager.createTask(task);
-        manager.createTask(epic);
-        manager.createTask(subtask);
-        manager.createTask(epic1);
+        System.out.println(manager.createTask(task));
+        System.out.println(manager.createTask(epic));
+        System.out.println(manager.createTask(subtask));
+        System.out.println(manager.createTask(epic1));
     }
 
     private static void getSomeTasks() {

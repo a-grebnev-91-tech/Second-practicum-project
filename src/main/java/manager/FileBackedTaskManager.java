@@ -26,10 +26,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
     }
 
     @Override
-    public boolean createTask(Task task) {
-        boolean result = super.createTask(task);
+    public long createTask(Task task) {
+        long id = super.createTask(task);
         save();
-        return result;
+        return id;
     }
 
     @Override

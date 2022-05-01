@@ -1,11 +1,13 @@
 package manager;
 
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import taskdata.EpicTask;
 import taskdata.Subtask;
+import taskdata.Task;
 import taskdata.TaskStatus;
 import util.Managers;
 
@@ -16,12 +18,11 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class InMemoryHistoryManagerTest {
-
+class InMemoryTaskManagerTest {
 
     @MethodSource("getSubtasksForEpic")
     @ParameterizedTest(name="{index}. Check epic status with {2}")
-    void test1_checkEpicStatus(List<Subtask> subtasks, TaskStatus expected, String description) {
+    void test1_checkEpicStatus(List<Subtask> subtasks, TaskStatus expected, String testResultDescription) {
         TaskManager manager = Managers.getDefault();
         EpicTask epic = new EpicTask("0", "0");
         manager.createTask(epic);
@@ -32,7 +33,7 @@ class InMemoryHistoryManagerTest {
         assertEquals(expected, epicStatus);
     }
 
-    public static Stream<Arguments> getSubtasksForEpic() {
+    private static Stream<Arguments> getSubtasksForEpic() {
         List<Subtask> emptyList = Collections.EMPTY_LIST;
         List<Subtask> newSubtasks = new ArrayList<>(List.of(
                 new Subtask(1, "1", "1"),
@@ -69,5 +70,44 @@ class InMemoryHistoryManagerTest {
         );
     }
 
+    @MethodSource("getEmptyListOfTasksAndNotRepeatingTasksForHistoryAddTest")
+    @ParameterizedTest(name="{index}. Check history with {1}")
+    void test2_checkHistoryManagerAddingEmptyAndNotRepeatingTasks(List<Task> tasks, String testResultDescription) {
+        TaskManager manager = Managers.getDefault();
+        for (Task task : tasks) {
+            manager.createTask(task);
+        }
+        for (Task task : tasks) {
+            manager.getTask(task.getID());
+        }
+        List<Task> tasksFromHistory = manager.history();
+        assertNotNull(tasksFromHistory, "Задачи не возвращаются");
+        assertEquals(tasks, tasksFromHistory, "Задачи не совпадают");
+    }
 
+    private static Stream<Arguments> getEmptyListOfTasksAndNotRepeatingTasksForHistoryAddTest() {
+        return Stream.of(
+                Arguments.of(new ArrayList<>(), "empty history"),
+                Arguments.of(getSimpleTasks(), "simple, not repeating tasks")
+        );
+    }
+
+    @Test
+    void test3_checkHistoryAddingRepeatingTasks() {
+        TaskManager manager = Managers.getDefault();
+        Task task = new Task("a", "a");
+        long id = manager.createTask(task);
+        manager.getTask(id);
+        manager.getTask(id);
+        assertNotNull(manager.history(), "Задачи не возвращаются");
+        assertEquals(1, manager.history().size(), "Задачи дублируются");
+    }
+
+    private static List<Task> getSimpleTasks() {
+        return List.of(
+                new Task("a", "a"),
+                new Task("b", "b"),
+                new Task("c", "c")
+        );
+    }
 }
