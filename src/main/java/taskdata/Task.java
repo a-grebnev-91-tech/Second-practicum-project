@@ -23,6 +23,7 @@ public class Task implements Cloneable {
         this.name = name;
         this.description = description;
         this.status = TaskStatus.NEW;
+        taskDateTime = new TaskDateTime(null, null);
     }
 
     public Task(String name, String description, LocalDateTime startTime, Duration duration) {
@@ -73,7 +74,7 @@ public class Task implements Cloneable {
         if (status != task.status) return false;
         if (!Objects.equals(name, task.name)) return false;
         if (!Objects.equals(description, task.description)) return false;
-        return !Objects.equals(taskDateTime, task.taskDateTime);
+        return Objects.equals(taskDateTime, task.taskDateTime);
     }
 
     public String getDescription() {
