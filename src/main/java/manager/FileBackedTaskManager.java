@@ -57,10 +57,6 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return CsvFileLoader.load(file);
     }
 
-    private void save() {
-        saver.save();
-    }
-
     @Override
     public void removeAllEpicTasks() {
         super.removeAllEpicTasks();
@@ -91,5 +87,9 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         boolean result = super.updateTask(task);
         save();
         return result;
+    }
+
+    private void save() {
+        saver.save();
     }
 }

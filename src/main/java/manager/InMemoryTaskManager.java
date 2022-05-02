@@ -68,7 +68,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public EpicTask getEpicTask(long id) {
         Task task = getTask(id);
-        if (task.getType() == TaskType.EPIC) {
+        if (task != null && task.getType() == TaskType.EPIC) {
             return (EpicTask) task;
         }
         return null;
@@ -97,7 +97,7 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public Subtask getSubtask(long id) {
         Task task = getTask(id);
-        if (task.getType() == TaskType.SUBTASK) {
+        if (task != null && task.getType() == TaskType.SUBTASK) {
             return (Subtask) task;
         }
         return null;
