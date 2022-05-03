@@ -1,14 +1,11 @@
 package manager;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import taskdata.*;
-import util.Managers;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -380,60 +377,65 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(Collections.EMPTY_LIST, manager.history(), "Подзадачи/эпики не удалились из истории");
     }
 
-    @MethodSource("test15MethodSource")
-    @ParameterizedTest(name = "{index}. Should {2}")
-    void test15_shouldUpdateTaskIfItIsValid(List<Task> tasksToAdd, Task taskToUpdate, String testResultDescription) {
-        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
-        for (Task t : tasksToAdd) {
-            manager.createTask(t);
-        }
-        manager.updateTask(taskToUpdate);
-        List<Task> allTasksAfterUpdate = new ArrayList<>(manager.getTasks());
-        allTasksAfterUpdate.addAll(manager.getSubtasks());
-        allTasksAfterUpdate.addAll(manager.getEpicTasks());
-        allTasksAfterUpdate.sort(comparator);
-        tasksToAdd = new ArrayList<>(tasksToAdd);
-        tasksToAdd.sort(comparator);
-        if (taskToUpdate == null) {
-            assertEquals(tasksToAdd, allTasksAfterUpdate, "Обновление таски со значением null " +
-                    "происходит не корректно");
-            assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории со значением null " +
-                    "происходит не корректно");
-            assertEquals(tasksToAdd, new ArrayList<>(manager.getPrioritizedTasks()), "Обновление таски " +
-                    "со значением null в списке задач по приоритету происходит не корректно");
-            return;
-        }
-        Long id = taskToUpdate.getID();
-        switch (taskToUpdate.getType()) {
-            case TASK:
-                assertEquals(manager.getTask(id), taskToUpdate, "Задача изменена не верно");
-                break;
-            case EPIC:
-                assertEquals(manager.getEpicTask(id), (EpicTask) taskToUpdate, "Задача изменена не верно");
-                break;
-            case SUBTASK:
-                assertEquals(manager.getSubtask(id), (Subtask) taskToUpdate, "Задача изменена не верно");
-        }
-    }
-
-    Stream<Arguments> test15MethodSource() {
-        List<Task> tasksToSimpleUpdate = getTasks(3);
-        Task taskToSimpleUpdate = tasksToSimpleUpdate.get(1).clone();
-        taskToSimpleUpdate.setID(2);
-//        taskToSimpleUpdate.
-        return Stream.of(
-                Arguments.of(getTasks(3), null, "not update null task"),
-                Arguments.of(getTasks(3)));
-    }
+//    @MethodSource("test15MethodSource")
+//    @ParameterizedTest(name = "{index}. Should {2}")
+//    void test15_shouldUpdateTaskIfItIsValid(List<Task> tasksToAdd, Task taskToUpdate, String testResultDescription) {
+//        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
+//        for (Task t : tasksToAdd) {
+//            manager.createTask(t);
+//            manager.getTask(t.getID());
+//        }
+//        manager.updateTask(taskToUpdate);
+//        List<Task> allTasksAfterUpdate = new ArrayList<>(manager.getTasks());
+//        allTasksAfterUpdate.addAll(manager.getSubtasks());
+//        allTasksAfterUpdate.addAll(manager.getEpicTasks());
+//        allTasksAfterUpdate.sort(comparator);
+//        tasksToAdd = new ArrayList<>(tasksToAdd);
+//        tasksToAdd.sort(comparator);
+//        assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории происходит не корректно");
+//        assertEquals(tasksToAdd, new ArrayList<>(manager.getPrioritizedTasks()), "Обновление таски " +
+//                "в списке задач по приоритету происходит не корректно");
+//        if (taskToUpdate == null) {
+//            assertEquals(tasksToAdd, allTasksAfterUpdate, "Обновление таски со значением null " +
+//                    "происходит не корректно");
+//            return;
+//        }
+//        Long id = taskToUpdate.getID();
+//        switch (taskToUpdate.getType()) {
+//            case TASK:
+//                assertEquals(manager.getTask(id), taskToUpdate, "Задача изменена не верно");
+//                break;
+//            case EPIC:
+//                assertEquals(manager.getEpicTask(id), (EpicTask) taskToUpdate, "Задача изменена не верно");
+//                break;
+//            case SUBTASK:
+//                assertEquals(manager.getSubtask(id), (Subtask) taskToUpdate, "Задача изменена не верно");
+//        }
+//    }
+//
+//    Stream<Arguments> test15MethodSource() {
+//        List<Task> tasksToSimpleUpdate = getTasks(3);
+//        Task taskToSimpleUpdate = tasksToSimpleUpdate.get(1).clone();
+//        taskToSimpleUpdate.setID(2);
+////        taskToSimpleUpdate.
+//        return Stream.of(
+//                Arguments.of(getTasks(3), null, "not update null task"),
+//                Arguments.of(getTasks(3)));
+//    }
 
     @Test
-    void test15_shouldNotUpdateNullTask() {
+    void test15_shouldNotUpdateNullTaskOrNullStatus() {
         Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
         List<Task> tasksToAdd = getTasks(3);
         for (Task t : tasksToAdd) {
             long id = manager.createTask(t);
             manager.getTask(id);
         }
+        Task taskToUpdate = tasksToAdd.get(1);
+        long idUpdatingTask = taskToUpdate.getID();
+        taskToUpdate.setStatus(null);
+
+        manager.updateTask(taskToUpdate);
         manager.updateTask(null);
         List<Task> allTasks = new ArrayList<>(manager.getTasks());
         allTasks.addAll(manager.getSubtasks());
@@ -441,15 +443,22 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         allTasks.sort(comparator);
         tasksToAdd = new ArrayList<>(tasksToAdd);
         tasksToAdd.sort(comparator);
-        assertEquals(tasksToAdd, allTasks, "Обновление таски со значением null происходит не корректно");
-        assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории со значением null " +
+        List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
+        prioritizedTasks.sort(comparator);
+        List<Task> tasksFromHistory = new ArrayList<>(manager.history());
+        tasksFromHistory.sort(comparator);
+
+        assertEquals(TaskStatus.NEW, manager.getTask(idUpdatingTask).getStatus(), "Произошло обновление " +
+                "статуса задачи, при передачи null вместо статуса");
+        assertEquals(tasksToAdd, allTasks, "Обновление таски со значениеми null происходит не корректно");
+        assertEquals(tasksToAdd, tasksFromHistory, "Обновление таски в истории со значениями null " +
                 "происходит не корректно");
-        assertEquals(tasksToAdd, new ArrayList<>(manager.getPrioritizedTasks()), "Обновление таски " +
-                "со значением null в списке задач по приоритету происходит не корректно");
+        assertEquals(tasksToAdd, prioritizedTasks, "Обновление таски " +
+                "со значениями null в списке задач по приоритету происходит не корректно");
     }
 
     @Test
-    void test16_shouldUpdateChangedValidTask() {
+    void test16_shouldUpdateTaskStatusAndDescriptionAndTime() {
         Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
         List<Task> tasksToAdd = getTasks(3);
         for (Task t : tasksToAdd) {
@@ -460,6 +469,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         taskToUpdate.setStatus(TaskStatus.DONE);
         taskToUpdate.setDescription("new description");
+        taskToUpdate.setTime(TEN_O_CLOCK, Duration.ofHours(1));
         manager.updateTask(taskToUpdate);
 
         List<Task> allTasks = new ArrayList<>(manager.getTasks());
@@ -468,11 +478,51 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         allTasks.sort(comparator);
         tasksToAdd = new ArrayList<>(tasksToAdd);
         tasksToAdd.sort(comparator);
-        assertEquals(tasksToAdd, allTasks, "Обновление таски со значением null происходит не корректно");
-        assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории со значением null " +
+        List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
+        prioritizedTasks.sort(comparator);
+        assertEquals(tasksToAdd, allTasks, "Обновление таски происходит не корректно");
+        assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории " +
                 "происходит не корректно");
-        assertEquals(tasksToAdd, new ArrayList<>(manager.getPrioritizedTasks()), "Обновление таски " +
-                "со значением null в списке задач по приоритету происходит не корректно");
+        assertEquals(tasksToAdd, prioritizedTasks, "Обновление таски " +
+                "в списке задач по приоритету происходит не корректно");
+    }
+
+    @Test
+    void test17_shouldUpdateSubtaskStatusAndDescriptionAndChangeEpicStatus() {
+        EpicTask epic = getEpics(1).get(0);
+        manager.createTask(epic);
+        manager.getTask(1);
+        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
+        List<Subtask> subtasksToAdd = getSubtasks(3, 1);
+        for (Task t : subtasksToAdd) {
+            long id = manager.createTask(t);
+            manager.getTask(id);
+        }
+        Subtask subtaskToUpdate = subtasksToAdd.get(1);
+
+        long updatingSubtasksId = subtaskToUpdate.getID();
+        subtaskToUpdate.setStatus(TaskStatus.DONE);
+        subtaskToUpdate.setDescription("new description");
+        manager.updateTask(subtaskToUpdate);
+
+        List<Task> allTasks = new ArrayList<>(manager.getTasks());
+        allTasks.addAll(manager.getSubtasks());
+        allTasks.addAll(manager.getEpicTasks());
+        allTasks.sort(comparator);
+
+        subtasksToAdd = new ArrayList<>(subtasksToAdd);
+        subtasksToAdd.sort(comparator);
+        List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
+        prioritizedTasks.sort(comparator);
+        List<Task> tasksFromHistory = new ArrayList<>(manager.history());
+        tasksFromHistory.sort(comparator);
+
+        assertEquals(subtaskToUpdate, manager.getSubtask(updatingSubtasksId), "Обновление таски происходит " +
+                "не корректно");
+        assertEquals(allTasks, tasksFromHistory, "Обновление статуса таски в истории " +
+                "происходит не корректно");
+        assertEquals(allTasks, prioritizedTasks, "Обновление статуса таски " +
+                "в списке задач по приоритету происходит не корректно");
     }
 
     @Test

@@ -1,6 +1,7 @@
 package manager;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import taskdata.Task;
@@ -18,4 +19,6 @@ public interface HistoryManager extends Cloneable {
     void remove(Collection<Long> ids);
 
     void update(Task task);
+
+    void update(Collection<Task> tasks);
 }

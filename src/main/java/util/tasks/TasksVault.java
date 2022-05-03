@@ -144,32 +144,42 @@ public class TasksVault {
         return null;
     }
 
-    public void update(Task task) {
+    public Collection<Task> update(Task task) {
+        Collection<Task> updatingTasks = null;
         Task oldTask = null;
         switch (task.getType()) {
             case EPIC:
                 EpicTask epic = (EpicTask) task;
                 updateEpicTime(epic);
                 oldTask = epicTasks.put(task.getID(), epic);
+                updatingTasks = Collections.singleton(epic);
                 break;
             case SUBTASK:
                 Subtask subtask = (Subtask) task;
+                long epicId = subtask.getEpicTaskID();
                 oldTask = subtasks.put(subtask.getID(), subtask);
-                updateEpicStatus(subtask.getEpicTaskID());
+                updateEpicStatus(epicId);
+                updatingTasks = new ArrayList<>();
+                updatingTasks.add(subtask);
+                updatingTasks.add(epicTasks.get(epicId));
                 break;
             case TASK:
                 oldTask = tasks.put(task.getID(), task);
+                updatingTasks = Collections.singleton(task);
                 break;
         }
         prioritizedTasks.remove(oldTask);
         prioritizedTasks.add(task);
+        return updatingTasks;
     }
 
     private void addSubtaskToEpic(Subtask subtask) {
         EpicTask currentEpic = epicTasks.get(subtask.getEpicTaskID());
         currentEpic.addSubtask(subtask.getID());
         updateEpicStatus(currentEpic);
-        updateEpicTime(currentEpic);
+        if (subtask.getStartTime() != null) {
+            updateEpicTime(currentEpic);
+        }
     }
 
     private TaskStatus getEpicStatusBySubtasksID(ArrayList<Long> subtasksID) {

@@ -70,6 +70,13 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
         }
     }
 
+    @Override
+    public void update(Collection<Task> tasksToUpdate) {
+        for (Task task : tasksToUpdate) {
+            update(task);
+        }
+    }
+
     private static class LinkedHistoryList {
         private HistoryNode first;
         private HistoryNode last;

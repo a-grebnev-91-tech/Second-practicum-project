@@ -162,8 +162,7 @@ public class InMemoryTaskManager implements TaskManager {
         ValidationMessage validMessage = validator.canUpdate(task);
         if (validMessage.isValid()) {
             Task taskToUpdate = task.clone();
-            vault.update(taskToUpdate);
-            historyManager.update(taskToUpdate);
+            historyManager.update(vault.update(taskToUpdate));
             return true;
         } else {
             return false;
