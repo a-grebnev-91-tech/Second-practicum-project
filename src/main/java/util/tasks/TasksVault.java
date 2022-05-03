@@ -2,6 +2,8 @@ package util.tasks;
 
 import  taskdata.*;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.*;
 
 public class TasksVault {
@@ -39,6 +41,7 @@ public class TasksVault {
                 break;
             case EPIC:
                 EpicTask epic = (EpicTask) task;
+                epic.setTime(null, null);
                 epicTasks.put(currentID, epic);
                 break;
             case SUBTASK:
@@ -86,7 +89,7 @@ public class TasksVault {
     }
 
     public Collection<Long> removeAllEpics() {
-        Collection<Long> removedIds = epicTasks.keySet();
+        Collection<Long> removedIds = new ArrayList<>(epicTasks.keySet());
         removedIds.addAll(subtasks.keySet());
         prioritizedTasks.removeAll(epicTasks.values());
         prioritizedTasks.removeAll(subtasks.values());
@@ -96,17 +99,18 @@ public class TasksVault {
     }
 
     public Collection<Long> removeAllSubtasks() {
-        Collection<Long> removedIds = subtasks.keySet();
+        Collection<Long> removedIds = new ArrayList<>(subtasks.keySet());
         prioritizedTasks.removeAll(subtasks.values());
         for (EpicTask epicToUpdate : epicTasks.values()) {
-            epicToUpdate.setStatus(TaskStatus.NEW); //TODO check this method (seems that epics subtasks are in there)
+            epicToUpdate.setStatus(TaskStatus.NEW);
+            epicToUpdate.removeAllSubtasks();
         }
         subtasks.clear();
         return removedIds;
     }
 
     public Collection<Long> removeAllTask() {
-        Collection<Long> removedIds = tasks.keySet();
+        Collection<Long> removedIds = new ArrayList<>(tasks.keySet());
         prioritizedTasks.removeAll(tasks.values());
         tasks.clear();
         return removedIds;
@@ -114,7 +118,9 @@ public class TasksVault {
 
     //TODO double check this
     public Collection<Long> remove(long id) {
-        if (tasks.remove(id) != null) {
+        Task task = tasks.remove(id);
+        if (task != null) {
+            prioritizedTasks.remove(task);
             return Collections.singleton(id);
         }
         EpicTask epic = epicTasks.remove(id);
@@ -124,11 +130,13 @@ public class TasksVault {
             for (Long subtaskId : epic.getSubtasksID()) {
                 removedIds.addAll(remove(subtaskId));
             }
+            prioritizedTasks.remove(epic);
             return removedIds;
         }
         Subtask subtask = subtasks.remove(id);
         if (subtask != null) {
             removeSubtaskFromEpic(subtask);
+            prioritizedTasks.remove(subtask);
             return Collections.singleton(id);
             // при удалении подтаски, в истории нужно удалить эти подтаски, и отредактировать эпик - это проблемка
             //TODO проверить это, проблему решил путем отсутсвия клонов в истории
@@ -140,7 +148,9 @@ public class TasksVault {
         Task oldTask = null;
         switch (task.getType()) {
             case EPIC:
-                oldTask = epicTasks.put(task.getID(), (EpicTask) task);
+                EpicTask epic = (EpicTask) task;
+                updateEpicTime(epic);
+                oldTask = epicTasks.put(task.getID(), epic);
                 break;
             case SUBTASK:
                 Subtask subtask = (Subtask) task;
@@ -159,6 +169,7 @@ public class TasksVault {
         EpicTask currentEpic = epicTasks.get(subtask.getEpicTaskID());
         currentEpic.addSubtask(subtask.getID());
         updateEpicStatus(currentEpic);
+        updateEpicTime(currentEpic);
     }
 
     private TaskStatus getEpicStatusBySubtasksID(ArrayList<Long> subtasksID) {
@@ -194,6 +205,27 @@ public class TasksVault {
         TaskStatus currentStatus = getEpicStatusBySubtasksID(epic.getSubtasksID());
         epic.setStatus(currentStatus);
         //TODO update epic in history manager when update epic, and when delete subtask(s)
+    }
+
+    private void updateEpicTime(EpicTask currentEpic) {
+        List<Long> subtasksIds = currentEpic.getSubtasksID();
+        LocalDateTime startTime = LocalDateTime.MAX;
+        LocalDateTime endTime = LocalDateTime.MIN;
+        for (Long id : subtasksIds) {
+            Subtask subtask = subtasks.get(id);
+            if (subtask.getStartTime().isBefore(startTime)) {
+                startTime = subtask.getStartTime();
+            }
+            if (subtask.getEndTime().isAfter(endTime)) {
+                endTime = subtask.getEndTime();
+            }
+        }
+        if (startTime.isAfter(endTime)) {
+            currentEpic.setTime(null, null);
+            return;
+        }
+        Duration duration = Duration.between(startTime, endTime);
+        currentEpic.setTime(startTime, duration);
     }
 
     private void updateEpicStatus(Long id) {

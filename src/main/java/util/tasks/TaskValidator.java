@@ -132,6 +132,10 @@ public class TaskValidator {
     }
 
     private boolean timeIsBusy(Task task) {
+        if (task.getType() == TaskType.EPIC) {
+            task.setTime(null, null);
+            return false;
+        }
         LocalDateTime newStartTime = task.getStartTime();
         if (newStartTime == null)
             return false;

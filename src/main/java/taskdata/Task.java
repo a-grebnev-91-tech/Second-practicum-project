@@ -154,8 +154,8 @@ public class Task implements Cloneable {
     }
 
     public void setTime(LocalDateTime startTime, Duration duration) {
-        if (startTime == null || duration == null)
-            throw new TaskTimeException("Cannot set a start time or duration as null");
+        if (startTime == null ^ duration == null)
+            throw new TaskTimeException("Cannot set start time as null and duration as not null and vice versa");
         this.taskDateTime = new TaskDateTime(startTime, duration);
     }
 
