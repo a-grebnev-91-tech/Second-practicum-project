@@ -159,6 +159,7 @@ public class TasksVault {
                 long epicId = subtask.getEpicTaskID();
                 oldTask = subtasks.put(subtask.getID(), subtask);
                 updateEpicStatus(epicId);
+                updateEpicTime(epicTasks.get(epicId));
                 updatingTasks = new ArrayList<>();
                 updatingTasks.add(subtask);
                 updatingTasks.add(epicTasks.get(epicId));
@@ -223,6 +224,8 @@ public class TasksVault {
         LocalDateTime endTime = LocalDateTime.MIN;
         for (Long id : subtasksIds) {
             Subtask subtask = subtasks.get(id);
+            if (subtask.getStartTime() == null)
+                continue;
             if (subtask.getStartTime().isBefore(startTime)) {
                 startTime = subtask.getStartTime();
             }

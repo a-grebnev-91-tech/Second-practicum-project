@@ -95,7 +95,7 @@ public class TaskValidator {
         EpicTask existEpic = epicTasks.get(newEpic.getID());
         boolean epicSubtasksMismatch = epicsSubtasksDontMatch(newEpic, existEpic);
         boolean epicTimeMismatch = epicsTimeDontMatch(newEpic, existEpic);
-        return epicSubtasksMismatch && epicTimeMismatch;
+        return epicSubtasksMismatch || epicTimeMismatch;
     }
 
     private boolean isNoEpicForSubtask(Task task) {

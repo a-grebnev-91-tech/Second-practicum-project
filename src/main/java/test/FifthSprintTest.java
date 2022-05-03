@@ -12,10 +12,11 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.TreeSet;
 
+//TODO удалить эти классы
 public class FifthSprintTest {
 
     private static TaskManager manager;
-    private static String file = "src" + File.separator + "main" + File.separator + "" + File.separator + "file.csv";
+    private static String file = "src" + File.separator + "main" + File.separator + "resources" + File.separator + "file.csv";
 
     public static void main(String[] args) throws IOException{
         System.out.println("Создадим мэнеджер, пишущий в файл и немного его потыкаем\n");

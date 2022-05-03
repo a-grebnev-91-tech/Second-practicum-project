@@ -1,5 +1,6 @@
 package manager;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -25,7 +26,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
             31,
             10,
             0);
-
+    public static final Comparator<Task> TASK_COMPARATOR_BY_ID = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
 
     @MethodSource("test1MethodSource")
     @ParameterizedTest(name = "{index}. Check epic status with {2}")
@@ -377,55 +378,8 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         assertEquals(Collections.EMPTY_LIST, manager.history(), "Подзадачи/эпики не удалились из истории");
     }
 
-//    @MethodSource("test15MethodSource")
-//    @ParameterizedTest(name = "{index}. Should {2}")
-//    void test15_shouldUpdateTaskIfItIsValid(List<Task> tasksToAdd, Task taskToUpdate, String testResultDescription) {
-//        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
-//        for (Task t : tasksToAdd) {
-//            manager.createTask(t);
-//            manager.getTask(t.getID());
-//        }
-//        manager.updateTask(taskToUpdate);
-//        List<Task> allTasksAfterUpdate = new ArrayList<>(manager.getTasks());
-//        allTasksAfterUpdate.addAll(manager.getSubtasks());
-//        allTasksAfterUpdate.addAll(manager.getEpicTasks());
-//        allTasksAfterUpdate.sort(comparator);
-//        tasksToAdd = new ArrayList<>(tasksToAdd);
-//        tasksToAdd.sort(comparator);
-//        assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории происходит не корректно");
-//        assertEquals(tasksToAdd, new ArrayList<>(manager.getPrioritizedTasks()), "Обновление таски " +
-//                "в списке задач по приоритету происходит не корректно");
-//        if (taskToUpdate == null) {
-//            assertEquals(tasksToAdd, allTasksAfterUpdate, "Обновление таски со значением null " +
-//                    "происходит не корректно");
-//            return;
-//        }
-//        Long id = taskToUpdate.getID();
-//        switch (taskToUpdate.getType()) {
-//            case TASK:
-//                assertEquals(manager.getTask(id), taskToUpdate, "Задача изменена не верно");
-//                break;
-//            case EPIC:
-//                assertEquals(manager.getEpicTask(id), (EpicTask) taskToUpdate, "Задача изменена не верно");
-//                break;
-//            case SUBTASK:
-//                assertEquals(manager.getSubtask(id), (Subtask) taskToUpdate, "Задача изменена не верно");
-//        }
-//    }
-//
-//    Stream<Arguments> test15MethodSource() {
-//        List<Task> tasksToSimpleUpdate = getTasks(3);
-//        Task taskToSimpleUpdate = tasksToSimpleUpdate.get(1).clone();
-//        taskToSimpleUpdate.setID(2);
-////        taskToSimpleUpdate.
-//        return Stream.of(
-//                Arguments.of(getTasks(3), null, "not update null task"),
-//                Arguments.of(getTasks(3)));
-//    }
-
     @Test
     void test15_shouldNotUpdateNullTaskOrNullStatus() {
-        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
         List<Task> tasksToAdd = getTasks(3);
         for (Task t : tasksToAdd) {
             long id = manager.createTask(t);
@@ -440,13 +394,13 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         List<Task> allTasks = new ArrayList<>(manager.getTasks());
         allTasks.addAll(manager.getSubtasks());
         allTasks.addAll(manager.getEpicTasks());
-        allTasks.sort(comparator);
+        allTasks.sort(TASK_COMPARATOR_BY_ID);
         tasksToAdd = new ArrayList<>(tasksToAdd);
-        tasksToAdd.sort(comparator);
+        tasksToAdd.sort(TASK_COMPARATOR_BY_ID);
         List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
-        prioritizedTasks.sort(comparator);
+        prioritizedTasks.sort(TASK_COMPARATOR_BY_ID);
         List<Task> tasksFromHistory = new ArrayList<>(manager.history());
-        tasksFromHistory.sort(comparator);
+        tasksFromHistory.sort(TASK_COMPARATOR_BY_ID);
 
         assertEquals(TaskStatus.NEW, manager.getTask(idUpdatingTask).getStatus(), "Произошло обновление " +
                 "статуса задачи, при передачи null вместо статуса");
@@ -459,7 +413,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test16_shouldUpdateTaskStatusAndDescriptionAndTime() {
-        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
         List<Task> tasksToAdd = getTasks(3);
         for (Task t : tasksToAdd) {
             long id = manager.createTask(t);
@@ -475,11 +428,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         List<Task> allTasks = new ArrayList<>(manager.getTasks());
         allTasks.addAll(manager.getSubtasks());
         allTasks.addAll(manager.getEpicTasks());
-        allTasks.sort(comparator);
+        allTasks.sort(TASK_COMPARATOR_BY_ID);
         tasksToAdd = new ArrayList<>(tasksToAdd);
-        tasksToAdd.sort(comparator);
+        tasksToAdd.sort(TASK_COMPARATOR_BY_ID);
         List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
-        prioritizedTasks.sort(comparator);
+        prioritizedTasks.sort(TASK_COMPARATOR_BY_ID);
         assertEquals(tasksToAdd, allTasks, "Обновление таски происходит не корректно");
         assertEquals(tasksToAdd, manager.history(), "Обновление таски в истории " +
                 "происходит не корректно");
@@ -489,34 +442,40 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
     @Test
     void test17_shouldUpdateSubtaskStatusAndDescriptionAndChangeEpicStatus() {
-        EpicTask epic = getEpics(1).get(0);
-        manager.createTask(epic);
+        EpicTask epicForValidation = getEpics(1).get(0);
+        manager.createTask(epicForValidation);
         manager.getTask(1);
-        Comparator<Task> comparator = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
         List<Subtask> subtasksToAdd = getSubtasks(3, 1);
         for (Task t : subtasksToAdd) {
             long id = manager.createTask(t);
             manager.getTask(id);
+            epicForValidation.addSubtask(id);
         }
         Subtask subtaskToUpdate = subtasksToAdd.get(1);
 
         long updatingSubtasksId = subtaskToUpdate.getID();
         subtaskToUpdate.setStatus(TaskStatus.DONE);
         subtaskToUpdate.setDescription("new description");
+        subtaskToUpdate.setTime(TEN_O_CLOCK, Duration.ofHours(1));
         manager.updateTask(subtaskToUpdate);
 
-        List<Task> allTasks = new ArrayList<>(manager.getTasks());
-        allTasks.addAll(manager.getSubtasks());
-        allTasks.addAll(manager.getEpicTasks());
-        allTasks.sort(comparator);
+        List<Task> allTasks = new ArrayList<>(subtasksToAdd);
+        epicForValidation.setStatus(TaskStatus.IN_PROGRESS);
+        epicForValidation.setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        allTasks.add(epicForValidation);
+        allTasks.sort(TASK_COMPARATOR_BY_ID);
 
         subtasksToAdd = new ArrayList<>(subtasksToAdd);
-        subtasksToAdd.sort(comparator);
+        subtasksToAdd.sort(TASK_COMPARATOR_BY_ID);
         List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
-        prioritizedTasks.sort(comparator);
+        prioritizedTasks.sort(TASK_COMPARATOR_BY_ID);
         List<Task> tasksFromHistory = new ArrayList<>(manager.history());
-        tasksFromHistory.sort(comparator);
+        tasksFromHistory.sort(TASK_COMPARATOR_BY_ID);
 
+        EpicTask epicFromManager = manager.getEpicTask(epicForValidation.getID());
+        assertEquals(TaskStatus.IN_PROGRESS, epicFromManager.getStatus(), "Статус эпика не обновился");
+        assertEquals(TEN_O_CLOCK, epicFromManager.getStartTime(), "СтартТайм эпика не обновился");
+        assertEquals(TEN_O_CLOCK.plusHours(1), epicFromManager.getEndTime(), "ЭндТайм эпика не обновился");
         assertEquals(subtaskToUpdate, manager.getSubtask(updatingSubtasksId), "Обновление таски происходит " +
                 "не корректно");
         assertEquals(allTasks, tasksFromHistory, "Обновление статуса таски в истории " +
@@ -526,30 +485,162 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     }
 
     @Test
-    void testNN_shouldCalculateEpicTimeBySubtasks() {
+    void test18_shouldUpdateEpicDescriptionAndName() {
         EpicTask epic = getEpics(1).get(0);
-        epic.setTime(TEN_O_CLOCK, Duration.ofHours(2));
         manager.createTask(epic);
-        System.out.println(manager.getEpicTasks());
-        List<Subtask> subtasks = getSubtasks(4, 1);
-        subtasks.get(0).setTime(TEN_O_CLOCK.minusHours(3), Duration.ofHours(1));
-        manager.createTask(subtasks.get(0));
-        System.out.println(manager.getEpicTasks());
-        subtasks.get(1).setTime(TEN_O_CLOCK, Duration.ofHours(1));
-        manager.createTask(subtasks.get(1));
-        System.out.println(manager.getEpicTasks());
-        subtasks.get(2).setTime(TEN_O_CLOCK.minusHours(4), Duration.ofMinutes(5));
-        manager.createTask(subtasks.get(2));
-        System.out.println(manager.getEpicTasks());
-        subtasks.get(3).setTime(TEN_O_CLOCK.minusHours(5), Duration.ofHours(10));
-        manager.createTask(subtasks.get(3));
-        System.out.println(manager.getEpicTasks());
-        epic = manager.getEpicTask(1);
-        epic.setDescription("kek");
+        long epicID = epic.getID();
+        manager.getTask(epicID);
+        List<Subtask> subtasksToAdd = getSubtasks(3, 1);
+        for (Subtask subtask : subtasksToAdd) {
+            manager.createTask(subtask);
+            manager.getSubtask(subtask.getID());
+            epic.addSubtask(subtask.getID());
+        }
+
+        epic.setName("new Name");
+        epic.setDescription("new Description");
         manager.updateTask(epic);
-        System.out.println(manager.getEpicTasks());
+
+        List<Task> expectedTasks = new ArrayList<>(subtasksToAdd);
+        expectedTasks.add(epic);
+        expectedTasks.sort(TASK_COMPARATOR_BY_ID);
+        List<Task> prioritizedTasks = new ArrayList<>(manager.getPrioritizedTasks());
+        prioritizedTasks.sort(TASK_COMPARATOR_BY_ID);
+        List<Task> tasksFromHistory = new ArrayList<>(manager.history());
+        tasksFromHistory.sort(TASK_COMPARATOR_BY_ID);
+
+        assertEquals(epic, manager.getEpicTask(epicID), "Эпик обновился не верно");
     }
 
+    @Test
+    void test19_shouldNotChangeEpicStatusOrTime() {
+        EpicTask epicToAdding = getEpics(1).get(0);
+        long epicID = manager.createTask(epicToAdding);
+        manager.getTask(epicID);
+        List<Subtask> subtasksToAdd = getSubtasks(3, 1);
+        for (int i = 0; i < subtasksToAdd.size(); i++) {
+            Subtask subtask = subtasksToAdd.get(i);
+            subtask.setTime(TEN_O_CLOCK.plusHours(i), Duration.ofHours(1));
+            manager.createTask(subtask);
+            manager.getSubtask(subtask.getID());
+            epicToAdding.addSubtask(subtask.getID());
+        }
+
+        EpicTask expectingEpic = manager.getEpicTask(epicID);
+        epicToAdding = expectingEpic.clone();
+        epicToAdding.setStatus(TaskStatus.IN_PROGRESS);
+        epicToAdding.setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        manager.updateTask(epicToAdding);
+
+        assertNotEquals(expectingEpic, epicToAdding, "Ошибка в тесте");
+        assertEquals(expectingEpic, manager.getEpicTask(epicID), "Состояние эпика изменилось");
+    }
+
+    @Test
+    void test20_shouldUpdateEpicTimeAndStatusByUpdatingSubtask() {
+        EpicTask epicToAdding = getEpics(1).get(0);
+        long epicID = manager.createTask(epicToAdding);
+        manager.getTask(epicID);
+        List<Subtask> subtasksToAdd = getSubtasks(3, 1);
+        List<Long> subtasksIds = new ArrayList<>();
+        for (int i = 0; i < subtasksToAdd.size(); i++) {
+            Subtask subtask = subtasksToAdd.get(i);
+//            subtask.setTime(TEN_O_CLOCK.plusHours(i), Duration.ofHours(1));
+            subtasksIds.add(manager.createTask(subtask));
+            manager.getSubtask(subtask.getID());
+        }
+
+        Subtask subtaskToChanging = manager.getSubtask(subtasksIds.get(1));
+        subtaskToChanging.setStatus(TaskStatus.IN_PROGRESS);
+        manager.updateTask(subtaskToChanging);
+        assertEquals(subtaskToChanging, manager.getSubtask(subtaskToChanging.getID()), "Статус подзадачи не " +
+                "изменился");
+        assertEquals(TaskStatus.IN_PROGRESS, manager.getEpicTask(epicID).getStatus(), "Статус эпика " +
+                "не изменился");
+
+        subtaskToChanging.setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        manager.updateTask(subtaskToChanging);
+        assertEquals(subtaskToChanging, manager.getSubtask(subtaskToChanging.getID()), "Время подзадачи не " +
+                "изменилось");
+        assertEquals(TEN_O_CLOCK, manager.getEpicTask(epicID).getStartTime(), "Время старта эпика " +
+                "не изменилось");
+        assertEquals(TEN_O_CLOCK.plusHours(1), manager.getEpicTask(epicID).getEndTime(), "Время окончания " +
+                        "эпика не изменилось");
+
+        Subtask subtaskToExtendEpicTime = manager.getSubtask(subtasksIds.get(0));
+        subtaskToExtendEpicTime.setTime(TEN_O_CLOCK.plusHours(10), Duration.ofHours(10));
+        manager.updateTask(subtaskToExtendEpicTime);
+
+        assertEquals(TEN_O_CLOCK.plusHours(20), manager.getEpicTask(epicID).getEndTime(), "Время окончания " +
+                "эпика не изменилось после добавления еще одной подзадачи");
+    }
+
+    @MethodSource("test21MethodSource")
+    @ParameterizedTest(name="{index}. {2}")
+    void test21_shouldNotCreateIntersectTask(List<Task> tasksToCreate, List<Task> expectedTasks, String paramsDescr) {
+        for (Task task : tasksToCreate) {
+            manager.createTask(task);
+        }
+        assertEquals(expectedTasks, new ArrayList<>(manager.getPrioritizedTasks()), "Время добавлено не верно");
+    }
+
+    Stream<Arguments> test21MethodSource() {
+//        time (start)intersect null
+        List<Task> firstCase = getTaskWithId(3);
+        firstCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        firstCase.get(1).setTime(TEN_O_CLOCK.plusMinutes(10), Duration.ofHours(1));
+        List<Task> firstCaseExpected = new ArrayList<>(firstCase);
+        firstCaseExpected.remove(1);
+
+        //intersect(end) time time
+        List<Task> secondCase = getTaskWithId(3);
+        secondCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        secondCase.get(1).setTime(TEN_O_CLOCK.plusHours(1), Duration.ofHours(1));
+        secondCase.get(2).setTime(TEN_O_CLOCK.minusHours(1), Duration.ofMinutes(90));
+        List<Task> secondCaseExpected = new ArrayList<>(secondCase);
+        secondCaseExpected.remove(2);
+
+        //time (start)intersect time
+        List<Task> thirdCase = getTaskWithId(3);
+        thirdCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        thirdCase.get(1).setTime(TEN_O_CLOCK.plusHours(2), Duration.ofHours(1));
+        thirdCase.get(2).setTime(TEN_O_CLOCK.plusMinutes(30), Duration.ofHours(1));
+        List<Task> thirdCaseExpected = new ArrayList<>(thirdCase);
+        thirdCaseExpected.remove(2);
+
+        //time intersect(end) time
+        List<Task> fourthCase = getTaskWithId(3);
+        fourthCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        fourthCase.get(1).setTime(TEN_O_CLOCK.plusHours(2), Duration.ofHours(1));
+        fourthCase.get(2).setTime(TEN_O_CLOCK.plusHours(1), Duration.ofHours(2));
+        List<Task> fourthCaseExpected = new ArrayList<>(fourthCase);
+        fourthCaseExpected.remove(2);
+
+        //time (start)intersect(end) time
+        List<Task> fifthCase = getTaskWithId(3);
+        fifthCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        fifthCase.get(1).setTime(TEN_O_CLOCK.plusHours(1), Duration.ofHours(1));
+        fifthCase.get(2).setTime(TEN_O_CLOCK.plusMinutes(30), Duration.ofHours(2));
+        List<Task> fifthCaseExpected = new ArrayList<>(fifthCase);
+        fifthCaseExpected.remove(2);
+
+        //time (expanding intersect) time
+        List<Task> sixthCase = getTaskWithId(3);
+        sixthCase.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        sixthCase.get(1).setTime(TEN_O_CLOCK.plusHours(1), Duration.ofHours(1));
+        sixthCase.get(2).setTime(TEN_O_CLOCK.minusHours(1), Duration.ofHours(10));
+        List<Task> sixthCaseExpected = new ArrayList<>(sixthCase);
+        sixthCaseExpected.remove(2);
+
+        return Stream.of(
+                Arguments.of(firstCase, firstCaseExpected, "Intersect start of task between null and task"),
+                Arguments.of(secondCase, secondCaseExpected, "Intersect end time before task"),
+                Arguments.of(thirdCase, thirdCaseExpected, "Intersect start time between tasks"),
+                Arguments.of(fourthCase, fourthCaseExpected, "Intersect end time between tasks"),
+                Arguments.of(fifthCase, fifthCaseExpected, "Intersect start and end time between tasks"),
+                Arguments.of(sixthCase, sixthCaseExpected, "New task intersect all tasks")
+                );
+    }
 
     public static List<Task> getTasks(int count) {
         List<Task> tasks = new ArrayList<>();
@@ -565,6 +656,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
             epics.add(new EpicTask("a", "a"));
         }
         return List.copyOf(epics);
+    }
+
+    private List<Task> getTaskWithId(int count) {
+        List<Task> tasks = getTasks(count);
+        for (int i = 1; i <= count; i++) {
+            tasks.get(i - 1).setID((long) i);
+        }
+        return tasks;
     }
 
     public static List<Subtask> getSubtasks(int count, long epicId) {

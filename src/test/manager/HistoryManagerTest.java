@@ -25,7 +25,7 @@ class HistoryManagerTest {
 
     @MethodSource("test1MethodSource")
     @ParameterizedTest(name = "{index}. Check history with {2}")
-    void test1_checkAddingTasks(List<Task> tasks, List<Task> expectedTasks, String testResultDescription) {
+    void test1_shouldAddTasks(List<Task> tasks, List<Task> expectedTasks, String testResultDescription) {
         for (Task task : tasks) {
             history.add(task);
         }
@@ -66,7 +66,7 @@ class HistoryManagerTest {
     }
 
     @Test
-    void test2_checkCloningHistory() {
+    void test2_shouldCloneHistory() {
         for (Task task : getSimpleTasks(4)) {
             history.add(task);
         }
@@ -76,7 +76,7 @@ class HistoryManagerTest {
     }
 
     @Test
-    void test3_checkGetHistory() {
+    void test3_shouldReturnHistory() {
         List<Task> tasksToAdd = getSimpleTasks(3);
         for (Task t : tasksToAdd) {
             history.add(t);
@@ -87,7 +87,7 @@ class HistoryManagerTest {
 
     @MethodSource("test4MethodSource")
     @ParameterizedTest(name = "{index}. Check removing {3} history")
-    void test4_checkRemovingTasks(List<Task> tasks,
+    void test4_shouldRemoveTasks(List<Task> tasks,
                                   List<Task> expectedTasks,
                                   int idToRemove,
                                   String testResultDescription) {
@@ -120,7 +120,7 @@ class HistoryManagerTest {
     }
 
     @Test
-    void test5_checkRemovingBunchOfTasks() {
+    void test5_shouldRemoveBunchOfTasks() {
         List<Task> tasksToAdd = getSimpleTasks(5);
         List<Long> idsToRemove = List.of(2L, 3L);
         for (Task t : tasksToAdd) {
@@ -134,7 +134,7 @@ class HistoryManagerTest {
 
     @MethodSource("test6MethodSource")
     @ParameterizedTest(name = "{index}. Try to update {3} task")
-    void test6_checkUpdatingTask(List<Task> tasks,
+    void test6_shouldUpdateTask(List<Task> tasks,
                                  Task taskToUpdate,
                                  List<Task> expectedTasksAfterUpd,
                                  String testResultDescription) {
@@ -159,6 +159,23 @@ class HistoryManagerTest {
         return Stream.of(
                 Arguments.of(tasks, taskToUpd, expectedTasksAfterUpd, "existing"),
                 Arguments.of(tasks, taskToUpdThatIsntExist, tasks, "not existing"));
+    }
+
+    @Test
+    void test7_shouldUpdateBunchOfTask() {
+        List<Task> tasks = getSimpleTasks(5);
+        List<Task> tasksAfterUpdate = new ArrayList<>();
+        for (Task task : tasks) {
+            history.add(task);
+            tasksAfterUpdate.add(task.clone());
+        }
+
+        for(Task task : tasksAfterUpdate) {
+            task.setStatus(TaskStatus.DONE);
+        }
+        history.update(tasksAfterUpdate);
+
+        assertEquals(tasksAfterUpdate, history.getHistory(), "Обновление группы задач произошло не корректно");
     }
 
     private static List<Task> getSimpleTasks(int count) {
