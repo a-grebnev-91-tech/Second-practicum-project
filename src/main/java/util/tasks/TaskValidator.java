@@ -87,7 +87,6 @@ public class TaskValidator {
         return existEpic.getStatus() != task.getStatus();
     }
 
-    //TODO double check this methods
     private boolean isEpicStateIsWrong(Task task) {
         if (task.getType() != TaskType.EPIC)
             return false;
@@ -104,19 +103,6 @@ public class TaskValidator {
         Subtask subtask = (Subtask) task;
         return !epicTasks.containsKey(subtask.getEpicTaskID());
     }
-
-    //TODO del
-//    private boolean isNoSubtasksForEpic(Task task) {
-//        if (task.getType() != TaskType.EPIC)
-//            return false;
-//        EpicTask epicTask = (EpicTask) task;
-//        ArrayList<Long> subtasksID = epicTask.getSubtasksID();
-//        for (Long id : subtasksID) {
-//            if (!subtasks.containsKey(id))
-//                return false;
-//        }
-//        return true;
-//    }
 
     private boolean isNull(Object obj) {
         return obj == null;
