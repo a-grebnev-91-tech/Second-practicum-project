@@ -149,7 +149,6 @@ public class InMemoryTaskManager implements TaskManager {
     @Override
     public boolean removeTask(long id) {
         Collection<Long> removedIds = vault.remove(id);
-        //TODO check this, dont like, why null?
         if (removedIds != null) {
             historyManager.remove(removedIds);
             return true;

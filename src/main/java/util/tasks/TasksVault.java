@@ -116,7 +116,6 @@ public class TasksVault {
         return removedIds;
     }
 
-    //TODO double check this
     public Collection<Long> remove(long id) {
         Task task = tasks.remove(id);
         if (task != null) {
@@ -138,8 +137,6 @@ public class TasksVault {
             removeSubtaskFromEpic(subtask);
             prioritizedTasks.remove(subtask);
             return Collections.singleton(id);
-            // при удалении подтаски, в истории нужно удалить эти подтаски, и отредактировать эпик - это проблемка
-            //TODO проверить это, проблему решил путем отсутсвия клонов в истории
         }
         return null;
     }
@@ -215,7 +212,6 @@ public class TasksVault {
     private void updateEpicStatus(EpicTask epic) {
         TaskStatus currentStatus = getEpicStatusBySubtasksID(epic.getSubtasksID());
         epic.setStatus(currentStatus);
-        //TODO update epic in history manager when update epic, and when delete subtask(s)
     }
 
     private void updateEpicTime(EpicTask currentEpic) {

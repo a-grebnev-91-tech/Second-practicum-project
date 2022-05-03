@@ -25,7 +25,6 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
 
     @Override
     public void add(final Task task) {
-        //TODO double check this (del clone)
         long id = task.getID();
         remove(id);
         if (historyList.size() >= MAX_HISTORY_SIZE) {

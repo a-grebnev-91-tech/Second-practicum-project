@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-//TODO add feature that saved time to a file
 public class CsvFileLoader {
     public static FileBackedTaskManager load(File file) {
         Map<Long, Task> tasks = new HashMap<>();

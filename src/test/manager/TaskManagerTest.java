@@ -1,6 +1,5 @@
 package manager;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -88,51 +87,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         manager.updateTask(attemptMakeDoneEpic);
         assertEquals(TaskStatus.NEW, manager.getEpicTask(1).getStatus(), "Статус изменился");
     }
-
-//TODO del
-//    @MethodSource("test2MethodSource")
-//    @ParameterizedTest(name="{index}. Trying to create {2}")
-//    void test2_shouldCreateAndGetDifferentTasks(List<Task> tasksToCreate,
-//                                  List<Task> expectedCreatedTasks,
-//                                  String testResultDescription) {
-//        for (Task t : tasksToCreate) {;
-//            manager.createTask(t);
-//        }
-//        List<Task> createdTasks = new ArrayList<>(tasksToCreate.size());
-//        createdTasks.addAll(manager.getTasks());
-//        createdTasks.addAll(manager.getEpicTasks());
-//        createdTasks.addAll(manager.getSubtasks());
-//        createdTasks.sort(Comparator.comparingLong(Task::getID));
-//        assertEquals(expectedCreatedTasks, createdTasks, "Задачи создались не верно");
-//    }
-//
-//    public static Stream<Arguments> test2MethodSource() {
-//        List<Task> nullTask = new ArrayList<>();
-//        nullTask.add(null);
-//
-//        Task task = getTasks(1).get(0);
-//        EpicTask epic = getEpics(1).get(0);
-//        Subtask subtask = getSubtasks(1, 2).get(0);
-//
-//
-//        List<Task> oneTaskEachType = new ArrayList<>();
-//        oneTaskEachType.addAll(getTasks(1));
-//        oneTaskEachType.addAll(getEpics(1));
-//        oneTaskEachType.addAll(getSubtasks(1, 2));
-//
-//        List<Task> expectedTasks = new ArrayList<>(oneTaskEachType);
-//        EpicTask expectedEpic = getEpics(1).get(0);
-//        expectedEpic.addSubtask(3);
-//        expectedEpic.setID(2);
-//        expectedTasks.remove(1);
-//        expectedTasks.add(1, expectedEpic);
-//
-//
-//        return Stream.of(
-//                Arguments.of(nullTask, new ArrayList<>(), "null task"),
-//                Arguments.of(oneTaskEachType, expectedTasks, "all type of Tasks")
-//        );
-//    }
 
     @Test
     void test3_shouldCreateAndGetTasks() {
@@ -545,7 +499,6 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         List<Long> subtasksIds = new ArrayList<>();
         for (int i = 0; i < subtasksToAdd.size(); i++) {
             Subtask subtask = subtasksToAdd.get(i);
-//            subtask.setTime(TEN_O_CLOCK.plusHours(i), Duration.ofHours(1));
             subtasksIds.add(manager.createTask(subtask));
             manager.getSubtask(subtask.getID());
         }
