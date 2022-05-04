@@ -54,7 +54,6 @@ class HistoryManagerTest {
             tenTasks.add(simpleTasks.get(i));
         }
 
-        taskCount = 3;
         List<Task> threeTasks = getSimpleTasks(3);
 
         return Stream.of(

@@ -7,9 +7,6 @@ public class HistoryNode {
     private HistoryNode next;
     private Task data;
 
-    public HistoryNode() {
-    }
-
     public HistoryNode(Task task) {
         this.data = task.clone();
     }

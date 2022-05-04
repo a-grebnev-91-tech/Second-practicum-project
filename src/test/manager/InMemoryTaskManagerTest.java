@@ -6,6 +6,6 @@ class InMemoryTaskManagerTest extends TaskManagerTest<InMemoryTaskManager> {
 
     @BeforeEach
     void init() {
-        manager = new InMemoryTaskManager();
+        setManager(new InMemoryTaskManager());
     }
 }

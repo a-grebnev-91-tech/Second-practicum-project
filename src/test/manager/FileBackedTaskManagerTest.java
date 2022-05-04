@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static util.csv.CsvFileSaver.FILE_HEADER;
@@ -27,7 +28,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
 
     @BeforeEach
     void init() {
-        manager = new FileBackedTaskManager(file);
+        setManager(new FileBackedTaskManager(file));
         try {
             reader = new BufferedReader(new FileReader(file, StandardCharsets.UTF_8));
         } catch (IOException e) {
@@ -38,8 +39,8 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @Test
     void test1_shouldWriteAndReadEmptyTaskManager() throws IOException {
         Task task = new Task("a", "a");
-        manager.createTask(task);
-        manager.removeAllTasks();
+        getManager().createTask(task);
+        getManager().removeAllTasks();
         StringBuilder builder = new StringBuilder();
         while (reader.ready()) {
             builder.append(reader.readLine());
@@ -51,7 +52,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @Test
     void test2_shouldWriteEpicWithoutSubtasks() throws IOException {
         EpicTask epic = new EpicTask("a", "a");
-        manager.createTask(epic);
+        getManager().createTask(epic);
         reader.readLine();
         String epicFromFile = reader.readLine();
         StringBuilder builder = new StringBuilder();
@@ -70,11 +71,22 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     @Test
     void test3_shouldWriteEmptyHistory() throws IOException {
         Task task = new Task("a", "a");
-        manager.createTask(task);
-        manager.removeAllTasks();
+        getManager().createTask(task);
+        getManager().removeAllTasks();
         String header = reader.readLine();
         String history = reader.readLine();
         assertTrue(history.isBlank(), "История записывается не верно");
         assertFalse(reader.ready());
+    }
+
+    @Test
+    void test4_shouldWriteAndCreateTaskTimeInAFile() throws IOException {
+        Task task = new Task("a", "a", TEN_O_CLOCK, Duration.ofHours(1));
+        getManager().createTask(task);
+        setManager(FileBackedTaskManager.loadFromFile(new File(file)));
+        Task taskFromFile = getManager().getTask(1);
+        assertEquals(TEN_O_CLOCK, taskFromFile.getStartTime(), "Время старта записано/загружено не верно");
+        assertEquals(TEN_O_CLOCK.plusHours(1), taskFromFile.getEndTime(), "Длительность записана/загружена " +
+                "не верно");
     }
 }

@@ -55,7 +55,6 @@ public class InMemoryHistoryManager implements HistoryManager, Cloneable {
         for (Long id : IDs) {
             remove(id);
         }
-        ;
     }
 
     @Override

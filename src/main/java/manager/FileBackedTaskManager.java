@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.Map;
 
 public class FileBackedTaskManager extends InMemoryTaskManager {
-    CsvFileSaver saver;
+    private final CsvFileSaver saver;
 
     public FileBackedTaskManager(String file) {
         super();

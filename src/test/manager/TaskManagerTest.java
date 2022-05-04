@@ -18,7 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public abstract class TaskManagerTest<T extends TaskManager> {
 
-    T manager;
+    private T manager;
+
     public final static LocalDateTime TEN_O_CLOCK = LocalDateTime.of(
             1991,
             Month.AUGUST,
@@ -26,6 +27,14 @@ public abstract class TaskManagerTest<T extends TaskManager> {
             10,
             0);
     public static final Comparator<Task> TASK_COMPARATOR_BY_ID = (t1, t2) -> Long.compare(t1.getID(), t2.getID());
+
+    public void setManager(T manager) {
+        this.manager = manager;
+    }
+
+    public T getManager() {
+        return manager;
+    }
 
     @MethodSource("test1MethodSource")
     @ParameterizedTest(name = "{index}. Check epic status with {2}")
@@ -228,10 +237,10 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         }
         manager.removeTask(-99);
         manager.removeTask(99);
-        assertEquals(tasks, manager.getTasks(), "Была удалена задача по неверному идентефикатору");
-        assertEquals(tasks, manager.history(), "Была удалена задача по неверному идентефикатору из истории");
+        assertEquals(tasks, manager.getTasks(), "Была удалена задача по неверному идентификатору");
+        assertEquals(tasks, manager.history(), "Была удалена задача по неверному идентификатору из истории");
         assertEquals(tasks, new ArrayList<>(manager.getPrioritizedTasks()), "Была удалена задача по неверному" +
-                " идентефикатору из списка задач по приоритету");
+                " идентификатору из списка задач по приоритету");
         Task taskToRemove = tasks.get(1);
         tasks.remove(taskToRemove);
         manager.removeTask(taskToRemove.getID());
@@ -593,6 +602,25 @@ public abstract class TaskManagerTest<T extends TaskManager> {
                 Arguments.of(fifthCase, fifthCaseExpected, "Intersect start and end time between tasks"),
                 Arguments.of(sixthCase, sixthCaseExpected, "New task intersect all tasks")
                 );
+    }
+
+    @Test
+    void test22_shouldCalculateEpicTimeBySubtasks() {
+        EpicTask epic = getEpics(1).get(0);
+        List<Subtask> subtasks = getSubtasks(3, 1);
+
+        manager.createTask(epic);
+        assertNull(manager.getEpicTask(1).getStartTime(), "Время у эпика не нулевое");
+        assertNull(manager.getEpicTask(1).getEndTime(), "Время у эпика не нулевое");
+
+        subtasks.get(0).setTime(TEN_O_CLOCK, Duration.ofHours(1));
+        subtasks.get(1).setTime(TEN_O_CLOCK.plusHours(10), Duration.ofHours(10));
+        for (Subtask subtask : subtasks) {
+            manager.createTask(subtask);
+        }
+
+        assertEquals(TEN_O_CLOCK, manager.getEpicTask(1).getStartTime(), "Время эпика не рассчиталось");
+        assertEquals(TEN_O_CLOCK.plusHours(20), manager.getEpicTask(1).getEndTime(), "Время эпика не рассчиталось");
     }
 
     public static List<Task> getTasks(int count) {
