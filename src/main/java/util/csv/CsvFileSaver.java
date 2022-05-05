@@ -16,7 +16,7 @@ import java.util.Iterator;
 
 public class CsvFileSaver {
     private final String file;
-    public static final String FILE_HEADER = "id,type,name,status,description,epic";
+    public static final String FILE_HEADER = "id,type,name,status,description,epic,start time,duration(minutes)";
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
     private final FileBackedTaskManager manager;
 
