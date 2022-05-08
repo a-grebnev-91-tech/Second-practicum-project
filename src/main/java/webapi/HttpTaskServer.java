@@ -109,6 +109,11 @@ public class HttpTaskServer {
         }
 
         private void getTask(HttpExchange exchange) throws IOException {
+            String path = exchange.getRequestURI().getPath();
+            if (!path.equals(tasksPath) && !path.equals(tasksPath + "/")) {
+                exchange.sendResponseHeaders(404, 0);
+                exchange.close();
+            }
             URI uri = exchange.getRequestURI();
             Map<String, String> queryPairs = UriParser.splitQuery(uri);
             if (queryPairs.get("id") == null) {

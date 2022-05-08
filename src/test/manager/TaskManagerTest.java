@@ -314,7 +314,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
 
         EpicTask epicToRemove = epics.get(1);
 
-        manager.getTask(epicToRemove.getID());
+        manager.getEpicTask(epicToRemove.getID());
         manager.getSubtask(epicToRemove.getSubtasksID().get(0));
 
         manager.removeTask(epicToRemove.getID());
@@ -407,11 +407,11 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void test17_shouldUpdateSubtaskStatusAndDescriptionAndChangeEpicStatus() {
         EpicTask epicForValidation = getEpics(1).get(0);
         manager.createTask(epicForValidation);
-        manager.getTask(1);
+        manager.getEpicTask(1);
         List<Subtask> subtasksToAdd = getSubtasks(3, 1);
         for (Task t : subtasksToAdd) {
             long id = manager.createTask(t);
-            manager.getTask(id);
+            manager.getSubtask(id);
             epicForValidation.addSubtask(id);
         }
         Subtask subtaskToUpdate = subtasksToAdd.get(1);
@@ -452,7 +452,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
         EpicTask epic = getEpics(1).get(0);
         manager.createTask(epic);
         long epicID = epic.getID();
-        manager.getTask(epicID);
+        manager.getEpicTask(epicID);
         List<Subtask> subtasksToAdd = getSubtasks(3, 1);
         for (Subtask subtask : subtasksToAdd) {
             manager.createTask(subtask);
@@ -479,7 +479,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void test19_shouldNotChangeEpicStatusOrTime() {
         EpicTask epicToAdding = getEpics(1).get(0);
         long epicID = manager.createTask(epicToAdding);
-        manager.getTask(epicID);
+        manager.getEpicTask(epicID);
         List<Subtask> subtasksToAdd = getSubtasks(3, 1);
         for (int i = 0; i < subtasksToAdd.size(); i++) {
             Subtask subtask = subtasksToAdd.get(i);
@@ -503,7 +503,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
     void test20_shouldUpdateEpicTimeAndStatusByUpdatingSubtask() {
         EpicTask epicToAdding = getEpics(1).get(0);
         long epicID = manager.createTask(epicToAdding);
-        manager.getTask(epicID);
+        manager.getEpicTask(epicID);
         List<Subtask> subtasksToAdd = getSubtasks(3, 1);
         List<Long> subtasksIds = new ArrayList<>();
         for (int i = 0; i < subtasksToAdd.size(); i++) {

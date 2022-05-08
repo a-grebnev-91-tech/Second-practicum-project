@@ -2,4 +2,4 @@ id,type,name,status,description,epic,start time,duration(minutes)
 1,TASK,a,NEW,a
 2,EPIC,b,NEW,b
 
-1,2
+1
