@@ -1,6 +1,6 @@
 package util.tasks;
 
-import taskdata.TaskTimeException;
+import util.exceptions.TaskTimeException;
 
 import java.time.Duration;
 import java.time.LocalDateTime;

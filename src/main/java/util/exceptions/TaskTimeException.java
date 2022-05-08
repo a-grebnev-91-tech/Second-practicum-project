@@ -1,4 +1,4 @@
-package taskdata;
+package util.exceptions;
 
 public class TaskTimeException extends RuntimeException {
 
