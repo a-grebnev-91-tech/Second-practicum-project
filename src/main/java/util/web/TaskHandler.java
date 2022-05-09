@@ -1,12 +1,15 @@
 package util.web;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
 import taskdata.Task;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
@@ -81,7 +84,6 @@ public class TaskHandler implements HttpHandler {
         exchange.close();
     }
 
-    //TODO что возвращать?
     private void deleteTaskById(HttpExchange exchange, String shouldBeId) throws IOException {
         long id = Long.parseLong(shouldBeId);
         boolean isDelete = manager.removeTask(id);
@@ -94,7 +96,10 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
-    private void postTask(HttpExchange exchange, String taskType) {
+    private void postTask(HttpExchange exchange, String taskType) throws IOException {
+        String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
+        JsonElement jsonBody = JsonParser.parseString(body);
+        
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {

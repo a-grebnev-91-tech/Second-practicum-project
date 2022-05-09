@@ -3,5 +3,7 @@ id,type,name,status,description,epic,start time,duration(minutes)
 2,TASK,aa,NEW,aa
 3,EPIC,b,NEW,b
 4,EPIC,bb,NEW,bb
+5,SUBTASK,c,NEW,c,3
+6,SUBTASK,cc,NEW,cc,3
 
 1,2
