@@ -9,6 +9,7 @@ import taskdata.EpicTask;
 import taskdata.Subtask;
 import taskdata.Task;
 import util.Managers;
+import util.tasks.TaskDateTime;
 import util.web.*;
 
 import java.io.IOException;
@@ -32,8 +33,7 @@ public class HttpTaskServer {
 
     public HttpTaskServer() throws IOException {
         gson = new GsonBuilder()
-                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .registerTypeAdapter(TaskDateTime.class, new TaskDateTimeAdapter())
                 .create();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         manager = Managers.getDefault();
