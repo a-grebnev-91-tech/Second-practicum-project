@@ -30,30 +30,9 @@ public class TaskHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         exchange.getResponseHeaders().add("Content-type", "application/json; charset=" + CHARSET_NAME);
+
         String method = exchange.getRequestMethod();
-        switch (method) {
-            case "GET":
-                handleGetRequest(exchange);
-                break;
-            case "POST":
-                handlePostRequest(exchange);
-                break;
-            case "DELETE":
-                handleDeleteRequest(exchange);
-                break;
-            default:
-                exchange.sendResponseHeaders(405, 0);
-                exchange.close();
-        }
-    }
-
-    private void handleDeleteRequest(HttpExchange exchange) {
-        //TODO
-    }
-
-    private void handleGetRequest(HttpExchange exchange) throws IOException {
         URI uri = exchange.getRequestURI();
-
         String path = uri.getPath();
         if ((!path.equals(TASKS_PATH) && !path.equals(TASKS_PATH + "/"))
                 && (!path.equals(EPICS_PATH) && !path.equals(EPICS_PATH + "/"))
@@ -68,15 +47,54 @@ public class TaskHandler implements HttpHandler {
         Map<String, String> queryPairs = UriParser.splitQuery(uri);
         String shouldBeId = queryPairs.get("id");
 
-        if (shouldBeId == null) {
-            sendAllTasks(exchange, taskType);
-        } else {
-            sendTaskById(exchange, taskType, shouldBeId);
+        switch (method) {
+            case "GET":
+                if (shouldBeId == null)
+                    sendAllTasks(exchange, taskType);
+                else
+                    sendTaskById(exchange, taskType, shouldBeId);
+                break;
+            case "POST":
+                postTask(exchange, taskType);
+                break;
+            case "DELETE":
+                if (shouldBeId == null)
+                    deleteAllTasks(exchange, taskType);
+                else
+                    deleteTaskById(exchange, shouldBeId);
+                break;
+            default:
+                exchange.sendResponseHeaders(405, 0);
+                exchange.close();
         }
     }
 
-    private void handlePostRequest(HttpExchange exchange) {
-        //TODO
+    private void deleteAllTasks(HttpExchange exchange, String taskType) throws IOException {
+        if (taskType.equals("task")) {
+            manager.removeAllTasks();
+        } else if (taskType.equals("epic")) {
+            manager.removeAllEpicTasks();
+        } else {
+            manager.removeAllSubtasks();
+        }
+        exchange.sendResponseHeaders(204, -1);
+        exchange.close();
+    }
+
+    //TODO что возвращать?
+    private void deleteTaskById(HttpExchange exchange, String shouldBeId) throws IOException {
+        long id = Long.parseLong(shouldBeId);
+        boolean isDelete = manager.removeTask(id);
+        if (isDelete) {
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+        } else {
+            exchange.sendResponseHeaders(404, 0);
+            exchange.close();
+        }
+    }
+
+    private void postTask(HttpExchange exchange, String taskType) {
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {

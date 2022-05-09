@@ -40,7 +40,6 @@ public class HttpTaskServer {
         server.createContext(TASKS_PATH, taskHandler);
         server.createContext(EPICS_PATH, taskHandler);
         server.createContext(SUBTASKS_PATH, taskHandler);
-        //TODO fix path for history and prioritized;
         server.createContext(HISTORY_PATH, new HistoryHandler(manager, gson));
         server.createContext(PRIORITIZED_PATH, new PrioritizedHandler(manager, gson));
         server.start();
