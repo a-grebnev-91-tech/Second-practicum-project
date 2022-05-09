@@ -98,7 +98,8 @@ public class TaskHandler implements HttpHandler {
     private void postTask(HttpExchange exchange, String taskType) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
         try {
-            boolean isCreated = false;
+            boolean isUpdateOperation = false;
+            boolean isUpdated = false;
             long createdId = -1;
             //TODO подумать над добовлением проверки тела
             switch (taskType) {
@@ -106,7 +107,8 @@ public class TaskHandler implements HttpHandler {
                     Subtask subtask = gson.fromJson(body, Subtask.class);
                     long subtaskId = subtask.getID();
                     if (manager.containsTask(subtaskId)) {
-                        isCreated = manager.updateTask(subtask);
+                        isUpdateOperation = true;
+                        isUpdated = manager.updateTask(subtask);
                     } else {
                         createdId = manager.createTask(subtask);
                     }
@@ -115,7 +117,8 @@ public class TaskHandler implements HttpHandler {
                     EpicTask epic = gson.fromJson(body, EpicTask.class);
                     long epicId = epic.getID();
                     if (manager.containsTask(epicId)) {
-                        isCreated = manager.updateTask(epic);
+                        isUpdateOperation =true;
+                        isUpdated = manager.updateTask(epic);
                     } else {
                         createdId = manager.createTask(epic);
                     }
@@ -124,17 +127,17 @@ public class TaskHandler implements HttpHandler {
                     Task task = gson.fromJson(body, Task.class);
                     long taskId = task.getID();
                     if (manager.containsTask(taskId)) {
-                        isCreated = manager.updateTask(task);
+                        isUpdateOperation = true;
+                        isUpdated = manager.updateTask(task);
                     } else {
                         createdId = manager.createTask(task);
                     }
                     break;
             }
-            if (isCreated || createdId > 0) {
-                System.out.println("не создано"); //TODO del
+            if (isUpdated || createdId > 0) {
                 exchange.sendResponseHeaders(204, -1);
                 exchange.close();
-            } else {
+            } else if (isUpdateOperation) {
                 exchange.sendResponseHeaders(404, 0);
                 exchange.close();
             }
