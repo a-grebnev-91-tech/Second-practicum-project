@@ -18,6 +18,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static util.tasks.TaskToString.FORMATTER;
+
 public class CsvFileLoader {
     public static FileBackedTaskManager load(File file) {
         Map<Long, Task> tasks = new HashMap<>();
@@ -104,7 +106,7 @@ public class CsvFileLoader {
             LocalDateTime startTime = null;
             Duration duration = null;
             if (values.size() > 6) {
-                startTime = LocalDateTime.parse(values.get(5), CsvFileSaver.FORMATTER);
+                startTime = LocalDateTime.parse(values.get(5), FORMATTER);
                 duration = Duration.ofMinutes(Long.parseLong(values.get(6)));
             }
             switch (type) {

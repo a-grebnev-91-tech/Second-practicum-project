@@ -8,11 +8,10 @@ import util.tasks.TaskDateTime;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
+import static util.tasks.TaskToString.FORMATTER;
+//TODO remove this class
 public class TaskDateTimeAdapter extends TypeAdapter<TaskDateTime> {
-
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
 
     @Override
     public void write(JsonWriter jsonWriter, TaskDateTime taskDateTime) throws IOException {

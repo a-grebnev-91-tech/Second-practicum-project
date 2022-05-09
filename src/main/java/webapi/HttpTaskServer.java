@@ -34,6 +34,7 @@ public class HttpTaskServer {
     public HttpTaskServer() throws IOException {
         gson = new GsonBuilder()
                 .registerTypeAdapter(TaskDateTime.class, new TaskDateTimeAdapter())
+                .registerTypeAdapter(Task.class, new TaskAdapter())
                 .create();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         manager = Managers.getDefault();

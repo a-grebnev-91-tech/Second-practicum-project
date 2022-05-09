@@ -11,13 +11,13 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
+
+import static util.tasks.TaskToString.FORMATTER;
 
 public class CsvFileSaver {
     private final String file;
     public static final String FILE_HEADER = "id,type,name,status,description,epic,start time,duration(minutes)";
-    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
     private final FileBackedTaskManager manager;
 
     public CsvFileSaver (String file, FileBackedTaskManager manager) {

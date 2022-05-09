@@ -71,6 +71,17 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
+    private void createTask(HttpExchange exchange, Task task) throws IOException {
+        long createdId = manager.createTask(task);
+        if (createdId > 0) {
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+        } else {
+            exchange.sendResponseHeaders(422, 0);
+            exchange.close();
+        }
+    }
+
     private void deleteAllTasks(HttpExchange exchange, String taskType) throws IOException {
         if (taskType.equals("task")) {
             manager.removeAllTasks();
@@ -98,53 +109,71 @@ public class TaskHandler implements HttpHandler {
     private void postTask(HttpExchange exchange, String taskType) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
         try {
-            boolean isUpdateOperation = false;
-            boolean isUpdated = false;
-            long createdId = -1;
-            //TODO подумать над добовлением проверки тела
-            switch (taskType) {
-                case "subtask":
-                    Subtask subtask = gson.fromJson(body, Subtask.class);
-                    long subtaskId = subtask.getID();
-                    if (manager.containsTask(subtaskId)) {
-                        isUpdateOperation = true;
-                        isUpdated = manager.updateTask(subtask);
-                    } else {
-                        createdId = manager.createTask(subtask);
-                    }
-                    break;
-                case "epic":
-                    EpicTask epic = gson.fromJson(body, EpicTask.class);
-                    long epicId = epic.getID();
-                    if (manager.containsTask(epicId)) {
-                        isUpdateOperation =true;
-                        isUpdated = manager.updateTask(epic);
-                    } else {
-                        createdId = manager.createTask(epic);
-                    }
-                    break;
-                case "task":
-                    Task task = gson.fromJson(body, Task.class);
-                    long taskId = task.getID();
-                    if (manager.containsTask(taskId)) {
-                        isUpdateOperation = true;
-                        isUpdated = manager.updateTask(task);
-                    } else {
-                        createdId = manager.createTask(task);
-                    }
-                    break;
-            }
-            if (isUpdated || createdId > 0) {
-                exchange.sendResponseHeaders(204, -1);
-                exchange.close();
-            } else if (isUpdateOperation) {
-                exchange.sendResponseHeaders(404, 0);
-                exchange.close();
+            Task task = parseBody(body, taskType);
+            long id = task.getID();
+            if (manager.containsTask(id)) {
+                updateTask(exchange, task);
+            } else {
+                createTask(exchange, task);
             }
         } catch (JsonParseException ex) {
             exchange.sendResponseHeaders(422, 0);
             exchange.close();
         }
+    }
+//                    Subtask subtask = gson.fromJson(body, Subtask.class);
+//                    long subtaskId = subtask.getID();
+//                    if (manager.containsTask(subtaskId)) {
+//                        isUpdateOperation = true;
+//                        isUpdated = manager.updateTask(subtask);
+//                    } else {
+//                        createdId = manager.createTask(subtask);
+//                    }
+//                    break;
+//                case "epic":
+//                    EpicTask epic = gson.fromJson(body, EpicTask.class);
+//                    long epicId = epic.getID();
+//                    if (manager.containsTask(epicId)) {
+//                        isUpdateOperation =true;
+//                        isUpdated = manager.updateTask(epic);
+//                    } else {
+//                        createdId = manager.createTask(epic);
+//                    }
+//                    break;
+//                case "task":
+//                    Task task = gson.fromJson(body, Task.class);
+//                    long taskId = task.getID();
+//                    if (manager.containsTask(taskId)) {
+//                        isUpdateOperation = true;
+//                        isUpdated = manager.updateTask(task);
+//                    } else {
+//                        createdId = manager.createTask(task);
+//                    }
+//                    break;
+//            }
+//            if (isUpdated || createdId > 0) {
+//                exchange.sendResponseHeaders(204, -1);
+//                exchange.close();
+//            } else if (isUpdateOperation) {
+//                exchange.sendResponseHeaders(404, 0);
+//                exchange.close();
+//            }
+
+
+    private Task parseBody(String body, String taskType) {
+        Task task = null;
+        switch (taskType) {
+            case "subtask":
+                task = gson.fromJson(body, Subtask.class);
+                break;
+            case "epic":
+                task = gson.fromJson(body, EpicTask.class);
+                break;
+            case "task":
+                task = gson.fromJson(body, Task.class);
+                break;
+        }
+        return task;
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {
@@ -179,4 +208,13 @@ public class TaskHandler implements HttpHandler {
         }
     }
 
+    private void updateTask(HttpExchange exchange, Task task) throws IOException {
+        if (manager.updateTask(task)) {
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+        } else {
+            exchange.sendResponseHeaders(422, 0);
+            exchange.close();
+        }
+    }
 }
