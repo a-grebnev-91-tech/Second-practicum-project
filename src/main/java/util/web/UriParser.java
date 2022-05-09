@@ -1,11 +1,11 @@
-package util;
+package util.web;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.util.*;
 
 public class UriParser {
-    //TODO write my own parser
+
     public static Map<String, String> splitQuery(URI uri) throws UnsupportedEncodingException {
         final Map<String, String> queryPairs = new HashMap<>();
         final String query = uri.getQuery();
