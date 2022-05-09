@@ -13,7 +13,6 @@ import static webapi.HttpTaskServer.PRIORITIZED_PATH;
 import static webapi.HttpTaskServer.DEFAULT_CHARSET;
 import static webapi.HttpTaskServer.CHARSET_NAME;
 
-
 public class PrioritizedHandler implements HttpHandler {
 
     private final Gson gson;

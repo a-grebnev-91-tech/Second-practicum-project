@@ -1,6 +1,7 @@
 package webapi;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 import manager.TaskManager;
@@ -8,13 +9,13 @@ import taskdata.EpicTask;
 import taskdata.Subtask;
 import taskdata.Task;
 import util.Managers;
-import util.web.HistoryHandler;
-import util.web.PrioritizedHandler;
-import util.web.TaskHandler;
+import util.web.*;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class HttpTaskServer {
     public static final String CHARSET_NAME = "utf-8";
@@ -30,7 +31,10 @@ public class HttpTaskServer {
     private final TaskManager manager;
 
     public HttpTaskServer() throws IOException {
-        gson = new Gson();
+        gson = new GsonBuilder()
+                .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .registerTypeAdapter(Duration.class, new DurationAdapter())
+                .create();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         manager = Managers.getDefault();
         //TODO del setupManager
@@ -52,7 +56,7 @@ public class HttpTaskServer {
 
     private void setupManager() {
         manager.createTask(new Task("a", "a"));
-        manager.createTask(new Task("aa", "aa"));
+        manager.createTask(new Task("aa", "aa", LocalDateTime.now(), Duration.ofHours(1)));
         manager.createTask(new EpicTask("b", "b"));
         manager.createTask(new EpicTask("bb", "bb"));
         manager.createTask(new Subtask(3, "c", "c"));

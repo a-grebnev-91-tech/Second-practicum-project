@@ -2,6 +2,7 @@ package util.web;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -52,6 +53,7 @@ public class TaskHandler implements HttpHandler {
 
         switch (method) {
             case "GET":
+                System.out.println("get");
                 if (shouldBeId == null)
                     sendAllTasks(exchange, taskType);
                 else
@@ -98,8 +100,11 @@ public class TaskHandler implements HttpHandler {
 
     private void postTask(HttpExchange exchange, String taskType) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
-        JsonElement jsonBody = JsonParser.parseString(body);
-        
+//        try {
+//            if (body.contains(""))
+//        } catch (JsonParseException ex) {
+//            //TODO
+//        }
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {
