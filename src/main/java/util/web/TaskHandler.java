@@ -51,7 +51,6 @@ public class TaskHandler implements HttpHandler {
 
         switch (method) {
             case "GET":
-                System.out.println("get");
                 if (shouldBeId == null)
                     sendAllTasks(exchange, taskType);
                 else
@@ -101,33 +100,38 @@ public class TaskHandler implements HttpHandler {
         try {
             boolean isCreated = false;
             long createdId = -1;
-            if (body.contains("epicTaskID")) {
-                Subtask subtask = gson.fromJson(body, Subtask.class);
-                long id = subtask.getID();
-
-                if (manager.containsTask(id)) {
-                    isCreated = manager.updateTask(subtask);
-                } else {
-                    createdId = manager.createTask(subtask);
-                }
-            } else if (body.contains("subtasksID")) {
-                EpicTask epic = gson.fromJson(body, EpicTask.class);
-                long id = epic.getID();
-                if (manager.containsTask(id)) {
-                    isCreated = manager.updateTask(epic);
-                } else {
-                    createdId = manager.createTask(epic);
-                }
-            } else {
-                Task task = gson.fromJson(body, Task.class);
-                long id = task.getID();
-                if (manager.containsTask(id)) {
-                    isCreated = manager.updateTask(task);
-                } else {
-                    createdId = manager.createTask(task);
-                }
+            //TODO подумать над добовлением проверки тела
+            switch (taskType) {
+                case "subtask":
+                    Subtask subtask = gson.fromJson(body, Subtask.class);
+                    long subtaskId = subtask.getID();
+                    if (manager.containsTask(subtaskId)) {
+                        isCreated = manager.updateTask(subtask);
+                    } else {
+                        createdId = manager.createTask(subtask);
+                    }
+                    break;
+                case "epic":
+                    EpicTask epic = gson.fromJson(body, EpicTask.class);
+                    long epicId = epic.getID();
+                    if (manager.containsTask(epicId)) {
+                        isCreated = manager.updateTask(epic);
+                    } else {
+                        createdId = manager.createTask(epic);
+                    }
+                    break;
+                case "task":
+                    Task task = gson.fromJson(body, Task.class);
+                    long taskId = task.getID();
+                    if (manager.containsTask(taskId)) {
+                        isCreated = manager.updateTask(task);
+                    } else {
+                        createdId = manager.createTask(task);
+                    }
+                    break;
             }
             if (isCreated || createdId > 0) {
+                System.out.println("не создано"); //TODO del
                 exchange.sendResponseHeaders(204, -1);
                 exchange.close();
             } else {
@@ -137,8 +141,6 @@ public class TaskHandler implements HttpHandler {
         } catch (JsonParseException ex) {
             exchange.sendResponseHeaders(422, 0);
             exchange.close();
-        } finally {
-            System.out.println(manager.getSubtasks());
         }
     }
 

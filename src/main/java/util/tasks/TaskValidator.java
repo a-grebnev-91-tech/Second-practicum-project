@@ -110,10 +110,11 @@ public class TaskValidator {
 
     private boolean taskNotExist(Task task) {
         Long id = task.getID();
-        if (tasks.containsKey(id))
-            return false;
-        if (epicTasks.containsKey(id))
-            return false;
+        TaskType type = task.getType();
+        if (type == TaskType.TASK)
+            return !tasks.containsKey(id);
+        if (type == TaskType.EPIC)
+            return !epicTasks.containsKey(id);
         return !subtasks.containsKey(id);
     }
 
