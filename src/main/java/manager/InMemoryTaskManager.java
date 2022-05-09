@@ -54,6 +54,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public boolean containsTask(long id) {
+        return vault.containsTask(id);
+    }
+
+    @Override
     public long createTask(Task task) {
         ValidationMessage message = validator.canCreate(task);
         if (message.isValid()) {

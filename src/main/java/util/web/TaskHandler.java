@@ -7,6 +7,8 @@ import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
+import taskdata.EpicTask;
+import taskdata.Subtask;
 import taskdata.Task;
 
 import java.io.IOException;
@@ -15,11 +17,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
 
-import static webapi.HttpTaskServer.TASKS_PATH;
-import static webapi.HttpTaskServer.EPICS_PATH;
-import static webapi.HttpTaskServer.SUBTASKS_PATH;
-import static webapi.HttpTaskServer.DEFAULT_CHARSET;
-import static webapi.HttpTaskServer.CHARSET_NAME;
+import static webapi.HttpTaskServer.*;
 
 public class TaskHandler implements HttpHandler {
 
@@ -100,11 +98,48 @@ public class TaskHandler implements HttpHandler {
 
     private void postTask(HttpExchange exchange, String taskType) throws IOException {
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
-//        try {
-//            if (body.contains(""))
-//        } catch (JsonParseException ex) {
-//            //TODO
-//        }
+        try {
+            boolean isCreated = false;
+            long createdId = -1;
+            if (body.contains("epicTaskID")) {
+                Subtask subtask = gson.fromJson(body, Subtask.class);
+                long id = subtask.getID();
+
+                if (manager.containsTask(id)) {
+                    isCreated = manager.updateTask(subtask);
+                } else {
+                    createdId = manager.createTask(subtask);
+                }
+            } else if (body.contains("subtasksID")) {
+                EpicTask epic = gson.fromJson(body, EpicTask.class);
+                long id = epic.getID();
+                if (manager.containsTask(id)) {
+                    isCreated = manager.updateTask(epic);
+                } else {
+                    createdId = manager.createTask(epic);
+                }
+            } else {
+                Task task = gson.fromJson(body, Task.class);
+                long id = task.getID();
+                if (manager.containsTask(id)) {
+                    isCreated = manager.updateTask(task);
+                } else {
+                    createdId = manager.createTask(task);
+                }
+            }
+            if (isCreated || createdId > 0) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close();
+            } else {
+                exchange.sendResponseHeaders(404, 0);
+                exchange.close();
+            }
+        } catch (JsonParseException ex) {
+            exchange.sendResponseHeaders(422, 0);
+            exchange.close();
+        } finally {
+            System.out.println(manager.getSubtasks());
+        }
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {

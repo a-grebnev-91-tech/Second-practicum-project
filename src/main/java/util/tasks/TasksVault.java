@@ -52,6 +52,10 @@ public class TasksVault {
         prioritizedTasks.add(task);
     }
 
+    public boolean containsTask(long id) {
+        return tasks.containsKey(id) || epicTasks.containsKey(id) || subtasks.containsKey(id);
+    }
+
     public Task get(Long id) {
         Task task = tasks.get(id);
         if (task != null)

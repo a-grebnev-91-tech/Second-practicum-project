@@ -7,6 +7,7 @@ import java.util.TreeSet;
 
 public interface TaskManager {
 
+    boolean containsTask(long id);
     long createTask(Task task);
 
     EpicTask getEpicTask(long id);
