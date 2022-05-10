@@ -1,9 +1,7 @@
 package util.web;
 
 import com.google.gson.Gson;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import manager.TaskManager;
@@ -12,7 +10,6 @@ import taskdata.Subtask;
 import taskdata.Task;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.util.Map;
@@ -121,44 +118,6 @@ public class TaskHandler implements HttpHandler {
             exchange.close();
         }
     }
-//                    Subtask subtask = gson.fromJson(body, Subtask.class);
-//                    long subtaskId = subtask.getID();
-//                    if (manager.containsTask(subtaskId)) {
-//                        isUpdateOperation = true;
-//                        isUpdated = manager.updateTask(subtask);
-//                    } else {
-//                        createdId = manager.createTask(subtask);
-//                    }
-//                    break;
-//                case "epic":
-//                    EpicTask epic = gson.fromJson(body, EpicTask.class);
-//                    long epicId = epic.getID();
-//                    if (manager.containsTask(epicId)) {
-//                        isUpdateOperation =true;
-//                        isUpdated = manager.updateTask(epic);
-//                    } else {
-//                        createdId = manager.createTask(epic);
-//                    }
-//                    break;
-//                case "task":
-//                    Task task = gson.fromJson(body, Task.class);
-//                    long taskId = task.getID();
-//                    if (manager.containsTask(taskId)) {
-//                        isUpdateOperation = true;
-//                        isUpdated = manager.updateTask(task);
-//                    } else {
-//                        createdId = manager.createTask(task);
-//                    }
-//                    break;
-//            }
-//            if (isUpdated || createdId > 0) {
-//                exchange.sendResponseHeaders(204, -1);
-//                exchange.close();
-//            } else if (isUpdateOperation) {
-//                exchange.sendResponseHeaders(404, 0);
-//                exchange.close();
-//            }
-
 
     private Task parseBody(String body, String taskType) {
         Task task = null;
