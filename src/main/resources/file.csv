@@ -1,11 +1,9 @@
 id,type,name,status,description,epic,start time,duration(minutes)
 1,TASK,a,NEW,a
-2,TASK,aa,NEW,aa,"14:16, 10.05.2022",60
-3,EPIC,b,IN_PROGRESS,b
+2,TASK,aa,NEW,aa,"15:23, 10.05.2022",60
+3,EPIC,b,NEW,b
 4,EPIC,bb,NEW,bb
-5,SUBTASK,cc,IN_PROGRESS,cc,3
+5,SUBTASK,c,NEW,c,3
 6,SUBTASK,cc,NEW,cc,3
-7,SUBTASK,cc,DONE,cc,3
-8,SUBTASK,cc,DONE,cc,3
 
 1,2

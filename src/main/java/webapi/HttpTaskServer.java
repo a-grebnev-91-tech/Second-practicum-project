@@ -48,6 +48,7 @@ public class HttpTaskServer {
         server.createContext(HISTORY_PATH, new HistoryHandler(manager, gson));
         server.createContext(PRIORITIZED_PATH, new PrioritizedHandler(manager, gson));
         server.start();
+        System.out.println("Server start on port " + PORT);
     }
 
     //TODO delete (for test purposes)
