@@ -15,8 +15,8 @@ import java.lang.reflect.Field;
 import java.util.Map;
 
 public class HttpTaskManager extends FileBackedTaskManager {
-    private final String key = this.getClass().getName();
 
+    private final String key = this.getClass().getName();
     private final KVTaskClient client;
     private final Gson gson;
 
