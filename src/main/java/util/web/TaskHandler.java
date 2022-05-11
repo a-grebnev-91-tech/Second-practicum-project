@@ -12,6 +12,7 @@ import taskdata.Task;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
+import java.time.DateTimeException;
 import java.util.Map;
 
 import static webapi.HttpTaskServer.*;
@@ -33,7 +34,6 @@ public class TaskHandler implements HttpHandler {
 
         if (pathIsValid(path)) {
             String method = exchange.getRequestMethod();
-            exchange.getResponseHeaders().add("Content-type", "application/json; charset=" + CHARSET_NAME);
 
             String taskType = path.split("/")[2];
 
@@ -42,6 +42,7 @@ public class TaskHandler implements HttpHandler {
 
             switch (method) {
                 case "GET":
+                    exchange.getResponseHeaders().add("Content-type", "application/json; charset=" + CHARSET_NAME);
                     if (shouldBeId == null)
                         sendAllTasks(exchange, taskType);
                     else
@@ -119,7 +120,7 @@ public class TaskHandler implements HttpHandler {
             } else {
                 createTask(exchange, task);
             }
-        } catch (JsonParseException ex) {
+        } catch (JsonParseException | DateTimeException ex) {
             exchange.sendResponseHeaders(422, 0);
             exchange.close();
         }
@@ -144,17 +145,28 @@ public class TaskHandler implements HttpHandler {
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {
         long id = Long.parseLong(shouldBeId);
         Task task;
-        if (taskType.equals("task")) {
-            task = manager.getTask(id);
-        } else if (taskType.equals("epic")) {
-            task = manager.getEpicTask(id);
-        } else {
-            task = manager.getSubtask(id);
+        switch (taskType) {
+            case "task":
+                task = manager.getTask(id);
+                break;
+            case "epic":
+                task = manager.getEpicTask(id);
+                break;
+            case "subtask":
+                task = manager.getSubtask(id);
+                break;
+            default:
+                task = null;
         }
-        String jsonTask = gson.toJson(task);
-        exchange.sendResponseHeaders(200, 0);
-        try (OutputStream os = exchange.getResponseBody()) {
-            os.write(jsonTask.getBytes(DEFAULT_CHARSET));
+        if (task == null) {
+            exchange.sendResponseHeaders(404, -1);
+            exchange.close();
+        } else {
+            String jsonTask = gson.toJson(task);
+            exchange.sendResponseHeaders(200, 0);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(jsonTask.getBytes(DEFAULT_CHARSET));
+            }
         }
     }
 

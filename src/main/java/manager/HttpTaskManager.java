@@ -45,6 +45,11 @@ public class HttpTaskManager extends FileBackedTaskManager {
 
         TasksVault thisVault = getCurrentTasksVault();
 
+        long id = getCurrentId();
+        String jsonId = gson.toJson(id);
+        JsonElement elementId = JsonParser.parseString(jsonId);
+        stateRepresentation.add(elementId);
+
         Map<Long, Task> tasks = thisVault.getTasks();
         String jsonTasks = gson.toJson(tasks);
         JsonElement elementTasks = JsonParser.parseString(jsonTasks);
@@ -61,14 +66,10 @@ public class HttpTaskManager extends FileBackedTaskManager {
         stateRepresentation.add(elementSubtasks);
 
         HistoryManager thisHistory = getHistoryManager();
-        String jsonHistory = gson.toJson(history());
+        String jsonHistory = gson.toJson(thisHistory);
         JsonElement elementHistory = JsonParser.parseString(jsonHistory);
         stateRepresentation.add(elementHistory);
 
-        long id = getCurrentId();
-        String jsonId = gson.toJson(id);
-        JsonElement elementId = JsonParser.parseString(jsonId);
-        stateRepresentation.add(elementId);
 
         return stateRepresentation.toString();
     }
@@ -80,7 +81,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
             id.setAccessible(true);
             return (long) id.get(this);
         } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot get id from super class");
         }
     }
 
@@ -91,7 +92,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
             vault.setAccessible(true);
             return (TasksVault) vault.get(this);
         } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cannot get task vault form super class");
         }
     }
 }

@@ -57,6 +57,7 @@ public class KVServer {
                             h.sendResponseHeaders(400, 0);
                             return;
                         }
+                        System.out.println(value);
                         data.put(key, value);
                         System.out.println("Значение для ключа " + key + " успешно обновлено!");
                         h.sendResponseHeaders(200, 0);
