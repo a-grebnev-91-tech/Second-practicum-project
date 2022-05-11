@@ -89,7 +89,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         return result;
     }
 
-    private void save() {
+    public void save() {
         saver.save();
     }
 }

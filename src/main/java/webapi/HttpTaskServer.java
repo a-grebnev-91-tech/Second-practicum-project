@@ -10,6 +10,7 @@ import taskdata.Subtask;
 import taskdata.Task;
 import util.Managers;
 import util.web.*;
+import webapi.kvserver.KVServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -38,9 +39,6 @@ public class HttpTaskServer {
                 .create();
         server = HttpServer.create(new InetSocketAddress(PORT), 0);
         manager = Managers.getDefault();
-        //TODO del setupManager
-        setupManager();
-        //TODO^^^^^^^^^^^^^
         HttpHandler taskHandler = new TaskHandler(manager, gson);
         server.createContext(TASKS_PATH, taskHandler);
         server.createContext(EPICS_PATH, taskHandler);
@@ -50,21 +48,4 @@ public class HttpTaskServer {
         server.start();
         System.out.println("Server start on port " + PORT);
     }
-
-    //TODO delete (for test purposes)
-    public static void main(String[] args) throws IOException {
-        HttpTaskServer server = new HttpTaskServer();
-    }
-
-    private void setupManager() {
-        manager.createTask(new Task("a", "a"));
-        manager.createTask(new Task("aa", "aa", LocalDateTime.now(), Duration.ofHours(1)));
-        manager.createTask(new EpicTask("b", "b"));
-        manager.createTask(new EpicTask("bb", "bb"));
-        manager.createTask(new Subtask(3, "c", "c"));
-        manager.createTask(new Subtask(3, "cc", "cc"));
-        manager.getTask(1);
-        manager.getTask(2);
-    }
-    // TODO ^^^^^^^^^^^^^^^^^^^^^^
 }

@@ -1,6 +1,7 @@
 package util;
 
 import manager.FileBackedTaskManager;
+import manager.HttpTaskManager;
 import manager.InMemoryTaskManager;
 import manager.TaskManager;
 
@@ -17,7 +18,7 @@ public final class Managers {
     private Managers() {}
 
     public static TaskManager getDefault() {
-        return new FileBackedTaskManager(file);
+        return new HttpTaskManager("http://localhost:8078");
     }
 
     public static TaskManager getFileBackedManager(String file) {

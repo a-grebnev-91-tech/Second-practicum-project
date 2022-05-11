@@ -28,43 +28,41 @@ public class TaskHandler implements HttpHandler {
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
-        exchange.getResponseHeaders().add("Content-type", "application/json; charset=" + CHARSET_NAME);
-
-        String method = exchange.getRequestMethod();
         URI uri = exchange.getRequestURI();
         String path = uri.getPath();
-        if ((!path.equals(TASKS_PATH) && !path.equals(TASKS_PATH + "/"))
-                && (!path.equals(EPICS_PATH) && !path.equals(EPICS_PATH + "/"))
-                && (!path.equals(SUBTASKS_PATH) && !path.equals(SUBTASKS_PATH + "/"))
-        ) {
+
+        if (pathIsValid(path)) {
+            String method = exchange.getRequestMethod();
+            exchange.getResponseHeaders().add("Content-type", "application/json; charset=" + CHARSET_NAME);
+
+            String taskType = path.split("/")[2];
+
+            Map<String, String> queryPairs = UriParser.splitQuery(uri);
+            String shouldBeId = queryPairs.get("id");
+
+            switch (method) {
+                case "GET":
+                    if (shouldBeId == null)
+                        sendAllTasks(exchange, taskType);
+                    else
+                        sendTaskById(exchange, taskType, shouldBeId);
+                    break;
+                case "POST":
+                    postTask(exchange, taskType);
+                    break;
+                case "DELETE":
+                    if (shouldBeId == null)
+                        deleteAllTasks(exchange, taskType);
+                    else
+                        deleteTaskById(exchange, shouldBeId);
+                    break;
+                default:
+                    exchange.sendResponseHeaders(405, 0);
+                    exchange.close();
+            }
+        } else {
             exchange.sendResponseHeaders(404, 0);
             exchange.close();
-        }
-
-        String taskType = path.split("/")[2];
-
-        Map<String, String> queryPairs = UriParser.splitQuery(uri);
-        String shouldBeId = queryPairs.get("id");
-
-        switch (method) {
-            case "GET":
-                if (shouldBeId == null)
-                    sendAllTasks(exchange, taskType);
-                else
-                    sendTaskById(exchange, taskType, shouldBeId);
-                break;
-            case "POST":
-                postTask(exchange, taskType);
-                break;
-            case "DELETE":
-                if (shouldBeId == null)
-                    deleteAllTasks(exchange, taskType);
-                else
-                    deleteTaskById(exchange, shouldBeId);
-                break;
-            default:
-                exchange.sendResponseHeaders(405, 0);
-                exchange.close();
         }
     }
 
@@ -101,6 +99,14 @@ public class TaskHandler implements HttpHandler {
             exchange.sendResponseHeaders(404, 0);
             exchange.close();
         }
+    }
+
+    private boolean pathIsValid(String path) {
+        if (path.equals(TASKS_PATH) || path.equals(TASKS_PATH + "/"))
+            return true;
+        if (path.equals(EPICS_PATH) || path.equals(EPICS_PATH + "/"))
+            return true;
+        return path.equals(SUBTASKS_PATH) || path.equals(SUBTASKS_PATH + "/");
     }
 
     private void postTask(HttpExchange exchange, String taskType) throws IOException {

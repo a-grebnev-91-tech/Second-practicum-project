@@ -16,7 +16,7 @@ public class KVTaskClient {
         try {
             uri = URI.create(url);
             URI registrationUri = uri.resolve("/register");
-            HttpRequest registerRequest = HttpRequest.newBuilder().GET().uri(uri).build();
+            HttpRequest registerRequest = HttpRequest.newBuilder().GET().uri(registrationUri).build();
             HttpResponse<String> response = client.send(registerRequest, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() != 200) {
                 System.out.println("Unexpected status code has been received");
