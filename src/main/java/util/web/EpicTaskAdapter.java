@@ -18,7 +18,6 @@ import static util.web.TaskAdapterHelper.*;
 
 public class EpicTaskAdapter extends TypeAdapter<EpicTask> {
 
-    //TODO implement this
     @Override
     public EpicTask read(JsonReader reader) throws IOException {
         long id = 0;
