@@ -1,4 +1,4 @@
-package util.web;
+package util.web.json.adapters;
 
 import com.google.gson.JsonParseException;
 import com.google.gson.TypeAdapter;
@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.jar.JarException;
 
-import static util.web.TaskAdapterHelper.*;
+import static util.web.json.adapters.TaskAdapterHelper.*;
 
 public class EpicTaskAdapter extends TypeAdapter<EpicTask> {
 

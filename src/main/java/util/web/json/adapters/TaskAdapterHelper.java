@@ -1,4 +1,4 @@
-package util.web;
+package util.web.json.adapters;
 
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
