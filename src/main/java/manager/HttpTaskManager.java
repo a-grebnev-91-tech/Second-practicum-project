@@ -36,7 +36,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
         try {
             client.put(key, jsonState);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e); //TODO change exception
+            throw new SaveException("Cannot save state on server"); //TODO change exception
         }
     }
 
@@ -65,10 +65,9 @@ public class HttpTaskManager extends FileBackedTaskManager {
         JsonElement elementSubtasks = JsonParser.parseString(jsonSubtasks);
         stateRepresentation.add("subtasks", elementSubtasks);
 
-        String jsonHistory = gson.toJson(history());
+        String jsonHistory = gson.toJson(getCurrentHistoryIds());
         JsonElement elementHistory = JsonParser.parseString(jsonHistory);
         stateRepresentation.add("history", elementHistory);
-
 
         return stateRepresentation.toString();
     }
@@ -80,7 +79,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
             id.setAccessible(true);
             return (long) id.get(this);
         } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
-            throw new RuntimeException("Cannot get id from super class");
+            throw new ReflectionParseException("Cannot get id from super class");
         }
     }
 
@@ -92,6 +91,23 @@ public class HttpTaskManager extends FileBackedTaskManager {
             return (TasksVault) vault.get(this);
         } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
             throw new RuntimeException("Cannot get task vault form super class");
+        }
+    }
+
+    private long[] getCurrentHistoryIds() {
+        return history().stream().mapToLong(Task::getID).toArray();
+    }
+
+
+    private class SaveException extends RuntimeException {
+        public SaveException(String message) {
+            super(message);
+        }
+    }
+
+    private class ReflectionParseException extends RuntimeException {
+        public ReflectionParseException(String message) {
+            super(message);
         }
     }
 }
