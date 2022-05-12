@@ -8,7 +8,7 @@ import util.tasks.TasksVault;
 import util.web.EpicTaskAdapter;
 import util.web.SubtaskAdapter;
 import util.web.TaskAdapter;
-import webapi.kvserver.KVTaskClient;
+import webapi.kv.KVTaskClient;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -41,34 +41,33 @@ public class HttpTaskManager extends FileBackedTaskManager {
     }
 
     private String convertStateToJson() {
-        JsonArray stateRepresentation = new JsonArray();
+        JsonObject stateRepresentation = new JsonObject();
 
         TasksVault thisVault = getCurrentTasksVault();
 
         long id = getCurrentId();
         String jsonId = gson.toJson(id);
         JsonElement elementId = JsonParser.parseString(jsonId);
-        stateRepresentation.add(elementId);
+        stateRepresentation.add("manager ID for next task", elementId);
 
         Map<Long, Task> tasks = thisVault.getTasks();
         String jsonTasks = gson.toJson(tasks);
         JsonElement elementTasks = JsonParser.parseString(jsonTasks);
-        stateRepresentation.add(elementTasks);
+        stateRepresentation.add("tasks", elementTasks);
 
         Map<Long, EpicTask> epics = thisVault.getEpics();
         String jsonEpics = gson.toJson(epics);
         JsonElement elementEpics = JsonParser.parseString(jsonEpics);
-        stateRepresentation.add(elementEpics);
+        stateRepresentation.add("epics", elementEpics);
 
         Map<Long, Subtask> subtasks = thisVault.getSubtasks();
         String jsonSubtasks = gson.toJson(subtasks);
         JsonElement elementSubtasks = JsonParser.parseString(jsonSubtasks);
-        stateRepresentation.add(elementSubtasks);
+        stateRepresentation.add("subtasks", elementSubtasks);
 
-        HistoryManager thisHistory = getHistoryManager();
-        String jsonHistory = gson.toJson(thisHistory);
+        String jsonHistory = gson.toJson(history());
         JsonElement elementHistory = JsonParser.parseString(jsonHistory);
-        stateRepresentation.add(elementHistory);
+        stateRepresentation.add("history", elementHistory);
 
 
         return stateRepresentation.toString();

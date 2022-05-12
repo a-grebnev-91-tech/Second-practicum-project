@@ -3,11 +3,9 @@ package manager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import util.Managers;
-import webapi.kvserver.KVServer;
+import webapi.kv.KVServer;
 
 import java.io.IOException;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class HttpTaskManagerTest extends TaskManagerTest<HttpTaskManager>{
     KVServer server;

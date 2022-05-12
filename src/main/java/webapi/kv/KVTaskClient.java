@@ -1,4 +1,4 @@
-package webapi.kvserver;
+package webapi.kv;
 
 import java.io.IOException;
 import java.net.URI;

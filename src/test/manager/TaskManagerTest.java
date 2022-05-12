@@ -222,6 +222,7 @@ public abstract class TaskManagerTest<T extends TaskManager> {
             manager.createTask(t);
         }
         for (int i = 1; i <= expectedHistory.size(); i++) {
+
             manager.getTask(i);
         }
         assertEquals(expectedHistory, manager.history(), "История отображается не верно");

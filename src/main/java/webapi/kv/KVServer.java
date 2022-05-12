@@ -1,4 +1,4 @@
-package webapi.kvserver;
+package webapi.kv;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
