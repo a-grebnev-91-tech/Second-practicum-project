@@ -1,22 +1,34 @@
 package util.web.json;
 
 import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
+import manager.HistoryManager;
 import manager.HttpTaskManager;
+import manager.InMemoryHistoryManager;
 import taskdata.EpicTask;
 import taskdata.Subtask;
 import taskdata.Task;
+import util.HistoryManagerUpdater;
+import util.tasks.TaskValidator;
 import util.tasks.TasksVault;
 import util.web.json.adapters.EpicTaskAdapter;
 import util.web.json.adapters.SubtaskAdapter;
 import util.web.json.adapters.TaskAdapter;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.List;
 import java.util.Map;
 
 public class HttpTaskManagerConverter {
 
     private final Gson gson;
     private final HttpTaskManager manager;
+    private final String epicsName = "epics";
+    private final String historyName = "history";
+    private final String idName = "manager ID for next task";
+    private final String subtasksName = "subtasks";
+    private final String tasksName = "tasks";
 
     public HttpTaskManagerConverter(HttpTaskManager manager) {
         this.manager = manager;
@@ -30,58 +42,110 @@ public class HttpTaskManagerConverter {
     public String convertStateToJson() {
         JsonObject stateRepresentation = new JsonObject();
 
-        TasksVault thisVault = getTaskVaultFromManager();
+        TasksVault thisVault = (TasksVault) getManagerFieldValue("vault");
 
-        long id = getIdFromManager();
+        long id = (long) getManagerFieldValue("id");
         String jsonId = gson.toJson(id);
         JsonElement elementId = JsonParser.parseString(jsonId);
-        stateRepresentation.add("manager ID for next task", elementId);
+        stateRepresentation.add(idName, elementId);
 
         Map<Long, Task> tasks = thisVault.getTasks();
         String jsonTasks = gson.toJson(tasks);
         JsonElement elementTasks = JsonParser.parseString(jsonTasks);
-        stateRepresentation.add("tasks", elementTasks);
+        stateRepresentation.add(tasksName, elementTasks);
 
         Map<Long, EpicTask> epics = thisVault.getEpics();
         String jsonEpics = gson.toJson(epics);
         JsonElement elementEpics = JsonParser.parseString(jsonEpics);
-        stateRepresentation.add("epics", elementEpics);
+        stateRepresentation.add(epicsName, elementEpics);
 
         Map<Long, Subtask> subtasks = thisVault.getSubtasks();
         String jsonSubtasks = gson.toJson(subtasks);
         JsonElement elementSubtasks = JsonParser.parseString(jsonSubtasks);
-        stateRepresentation.add("subtasks", elementSubtasks);
+        stateRepresentation.add(subtasksName, elementSubtasks);
 
         String jsonHistory = gson.toJson(getIdsFromHistory());
         JsonElement elementHistory = JsonParser.parseString(jsonHistory);
-        stateRepresentation.add("history", elementHistory);
+        stateRepresentation.add(historyName, elementHistory);
 
         return stateRepresentation.toString();
     }
 
-    public void updateManager(String jsonState) {
+    public void updateManagerFromJson(String managerState) {
+        long id = 0;
+        Map<Long, Task> tasks = null;
+        Map<Long, EpicTask> epics = null;
+        Map<Long, Subtask> subtasks = null;
+        TasksVault vault = null;
+        TaskValidator validator = null;
+        List<Long> historyIds = null;
+        HistoryManager historyManager = null;
 
+        JsonElement elementManagerState = JsonParser.parseString(managerState);
+        JsonObject jsonManagerState = elementManagerState.getAsJsonObject();
+
+        JsonElement elementId = jsonManagerState.get(idName);
+        id = elementId.getAsLong();
+
+        JsonElement elementTasks = jsonManagerState.get(tasksName);
+        Type tasksMapType = new TypeToken<Map<Long, Task>>(){}.getType();
+        tasks = gson.fromJson(elementTasks, tasksMapType);
+
+        JsonElement elementEpics = jsonManagerState.get(epicsName);
+        Type epicsMapType = new TypeToken<Map<Long, EpicTask>>(){}.getType();
+        epics = gson.fromJson(elementEpics, epicsMapType);
+
+        JsonElement elementSubtasks = jsonManagerState.get(subtasksName);
+        Type subtasksMapType = new TypeToken<Map<Long, Subtask>>(){}.getType();
+        subtasks = gson.fromJson(elementSubtasks, subtasksMapType);
+
+        JsonElement elementHistory = jsonManagerState.get(historyName);
+        Type longListType = new TypeToken<List<Long>>(){}.getType();
+        historyIds = gson.fromJson(elementHistory, longListType);
+
+        vault = new TasksVault(epics,subtasks, tasks);
+        validator = new TaskValidator(epics, subtasks, tasks, vault.getPrioritizedTasks());
+        historyManager = new InMemoryHistoryManager();
+
+        HistoryManagerUpdater.updateHistoryManager(historyManager, historyIds, tasks, epics, subtasks);
+
+        updateManager(vault, validator, historyManager);
     }
 
-    private long getIdFromManager() {
+    private void updateManager(TasksVault vault, TaskValidator validator, HistoryManager history) {
+        Field tasksVault = getManagerField("vault");
+        Field taskValidator = getManagerField("validator");
+        Field historyManager = getManagerField("historyManager");
         try {
-            Class inMemoryHistoryManager = manager.getClass().getSuperclass().getSuperclass();
-            Field id = inMemoryHistoryManager.getDeclaredField("id");
-            id.setAccessible(true);
-            return (long) id.get(manager);
-        } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
-            throw new ReflectionParseException("Cannot get id from super class");
+            tasksVault.set(manager, vault);
+            taskValidator.set(manager, validator);
+            historyManager.set(manager, history);
+        } catch (IllegalAccessException e) {
+            throw new ReflectionAccessException("Cannot set value to current manager object");
         }
     }
 
-    private TasksVault getTaskVaultFromManager() {
+    private Field getManagerField(String name) {
         try {
             Class inMemoryHistoryManager = manager.getClass().getSuperclass().getSuperclass();
-            Field vault = inMemoryHistoryManager.getDeclaredField("vault");
-            vault.setAccessible(true);
-            return (TasksVault) vault.get(manager);
-        } catch (NoSuchFieldException | IllegalStateException | IllegalAccessException e) {
-            throw new RuntimeException("Cannot get task vault from super class");
+            Field field = inMemoryHistoryManager.getDeclaredField(name);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException | IllegalStateException e) {
+            throw new ReflectionParseException("Cannot get " + name + " field from super class");
+        }
+    }
+
+    private Object getManagerFieldValue(String name) {
+        try {
+            Class inMemoryHistoryManager = manager.getClass().getSuperclass().getSuperclass();
+            Field field = inMemoryHistoryManager.getDeclaredField(name);
+            field.setAccessible(true);
+            return field.get(manager);
+        } catch (NoSuchFieldException | IllegalStateException e) {
+            throw new ReflectionParseException("Cannot get " + name + " field from super class");
+        } catch (IllegalAccessException e) {
+            throw new ReflectionAccessException("Cannot get " + name + " field value from super class");
         }
     }
 
@@ -89,9 +153,14 @@ public class HttpTaskManagerConverter {
         return manager.history().stream().mapToLong(Task::getID).toArray();
     }
 
-
     private class ReflectionParseException extends RuntimeException {
         public ReflectionParseException(String message) {
+            super(message);
+        }
+    }
+
+    private class ReflectionAccessException extends RuntimeException {
+        public ReflectionAccessException(String message) {
             super(message);
         }
     }

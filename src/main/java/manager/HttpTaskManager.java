@@ -23,7 +23,7 @@ public class HttpTaskManager extends FileBackedTaskManager {
         try {
             client.put(key, jsonState);
         } catch (IOException | InterruptedException e) {
-            throw new SaveException("Cannot save state on server"); //TODO change exception
+            throw new SaveException("Cannot save state on server");
         }
     }
 
@@ -32,13 +32,19 @@ public class HttpTaskManager extends FileBackedTaskManager {
         try {
             jsonState = client.load(key);
         } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new LoadException("Cannot load state from server");
         }
-        converter.updateManager(jsonState);
+        converter.updateManagerFromJson(jsonState);
     }
 
     private static class SaveException extends RuntimeException {
         public SaveException(String message) {
+            super(message);
+        }
+    }
+
+    private static class LoadException extends RuntimeException {
+        public LoadException(String message) {
             super(message);
         }
     }
