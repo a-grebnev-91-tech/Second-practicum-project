@@ -57,22 +57,4 @@ public class HttpTaskServer {
     public void stop(int delay) {
         server.stop(delay);
     }
-
-//TODO del below
-        public static void main(String[] args) throws IOException {
-        new KVServer().start();
-        HttpTaskServer server = new HttpTaskServer();
-        server.setupManager();
-    }
-
-    public void setupManager() {
-        manager.createTask(new Task("a", "a"));
-        manager.createTask(new Task("aa", "aa", java.time.LocalDateTime.now(), java.time.Duration.ofHours(1)));
-        manager.createTask(new EpicTask("b", "b"));
-        manager.createTask(new EpicTask("bb", "bb"));
-        manager.createTask(new Subtask(3, "c", "c"));
-        manager.createTask(new Subtask(3, "cc", "cc"));
-        manager.getTask(1);
-        manager.getTask(2);
-    }
 }
