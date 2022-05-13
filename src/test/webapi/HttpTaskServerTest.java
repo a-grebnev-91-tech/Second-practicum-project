@@ -17,7 +17,6 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -177,8 +176,75 @@ class HttpTaskServerTest {
                 new TypeToken<List<Subtask>>(){}.getType());
         assertEquals(expectedSubtasks, acceptedSubtasks, "List of subtasks are different");
 
-        //todo add subtasks of epic
-        //todo add get wrong id all type of tasks
+        HttpResponse<String> allSubtasksOfEpicReturnResponse = sendGetRequest(uri.resolve("subtask/epic?id=2"));
+        assertEquals(200, allSubtasksReturnResponse.statusCode(), "Status code for all subtasks " +
+                "of epic is unexpected");
+        String acceptedSubtasksOfEpicJson =
+                new String(allSubtasksOfEpicReturnResponse.body().getBytes(), DEFAULT_CHARSET);
+        List<Subtask> acceptedSubtasksOfEpic = gson.fromJson(acceptedSubtasksOfEpicJson,
+                new TypeToken<List<Subtask>>(){}.getType());
+        assertEquals(expectedSubtasks, acceptedSubtasksOfEpic, "List of subtasks of epic are different");
+
+
+        id = 12;
+        HttpResponse<String> wrongTaskReturnResponse = sendGetRequest(uri.resolve("task/?id=" + id));
+        assertEquals(404, wrongTaskReturnResponse.statusCode(), "Status code for wrong task " +
+                "is unexpected");
+        HttpResponse<String> wrongEpicReturnResponse = sendGetRequest(uri.resolve("epic/?id=" + id));
+        assertEquals(404, wrongEpicReturnResponse.statusCode(), "Status code for wrong epic " +
+                "is unexpected");
+        HttpResponse<String> wrongSubtaskReturnResponse = sendGetRequest(uri.resolve("subtask/?id=" + id));
+        assertEquals(404, wrongSubtaskReturnResponse.statusCode(), "Status code for wrong task " +
+                "is unexpected");
+    }
+
+    @Test
+    public void test7_shouldDeleteTasks() throws IOException, InterruptedException {
+        HttpResponse<String> deleteUnexist = sendDeleteRequest(uri.resolve("/tasks/task?id=4"));
+        assertEquals(404, deleteUnexist.statusCode(), "Status code for delete unexist task is " +
+                "unexpected");
+
+        sendPostRequest(taskUri, gson.toJson(getTask()));
+        sendPostRequest(epicUri, gson.toJson(getEpicTask()));
+        sendPostRequest(subtaskUri, gson.toJson(getSubtask(2)));
+
+        HttpResponse<String> deleteTask = sendDeleteRequest(uri.resolve("task?id=1"));
+        assertEquals(204, deleteTask.statusCode(), "Status code for delete task is unexpected");
+
+        HttpResponse<String> deleteSubtask = sendDeleteRequest(uri.resolve("subtask?id=3"));
+        assertEquals(204, deleteSubtask.statusCode(), "Status code for delete subtask is unexpected");
+
+        HttpResponse<String> deleteEpic = sendDeleteRequest(uri.resolve("epic?id=2"));
+        assertEquals(204, deleteEpic.statusCode(), "Status code for delete epic is unexpected");
+    }
+
+    @Test
+    public void test8_shouldDeleteAllTasks() throws IOException, InterruptedException {
+        sendPostRequest(taskUri, gson.toJson(getTask()));
+        sendPostRequest(epicUri, gson.toJson(getEpicTask()));
+        sendPostRequest(subtaskUri, gson.toJson(getSubtask(2)));
+
+        HttpResponse<String> deleteTask = sendDeleteRequest(taskUri);
+        assertEquals(204, deleteTask.statusCode(), "Status code for delete tasks is unexpected");
+
+        HttpResponse<String> deleteSubtask = sendDeleteRequest(subtaskUri);
+        assertEquals(204, deleteSubtask.statusCode(), "Status code for delete subtasks is unexpected");
+
+        HttpResponse<String> deleteEpic = sendDeleteRequest(epicUri);
+        assertEquals(204, deleteEpic.statusCode(), "Status code for delete epics is unexpected");
+    }
+
+    @Test
+    public void test9_shouldGetHistory() throws IOException, InterruptedException {
+        sendPostRequest(taskUri, gson.toJson(getTask()));
+        sendGetRequest(taskUri.resolve("task?id=1"));
+        HttpResponse<String> historyResponse = sendGetRequest(historyUri);
+        List<Task> expectedHistory = new ArrayList<>();
+        expectedHistory.add(getTask());
+        expectedHistory.get(0).setID(1);
+        String historyJson = new String(historyResponse.body().getBytes(), DEFAULT_CHARSET);
+        List<Task> actualHistory = gson.fromJson(historyJson, new TypeToken<List<Task>>(){}.getType());
+        assertEquals(expectedHistory, actualHistory, "History is different");
     }
 
     private Task getTask() {
@@ -203,7 +269,8 @@ class HttpTaskServerTest {
         return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private HttpResponse<String> sendDeleteRequest(URI uri, String body) {
-        return null;
+    private HttpResponse<String> sendDeleteRequest(URI uri) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder().DELETE().uri(uri).build();
+        return client.send(request, HttpResponse.BodyHandlers.ofString());
     }
 }
