@@ -37,12 +37,14 @@ public class TaskHandler implements HttpHandler {
         if (pathIsValid(path)) {
             String method = exchange.getRequestMethod();
 
-            String taskType = path.split("/")[2];
+            String[] pathTokens = path.split("/");
+
+            String taskType = pathTokens[2];
 
             Map<String, String> queryPairs = UriParser.splitQuery(uri);
             String shouldBeId = queryPairs.get("id");
 
-            if (taskType.equals("subtask") && path.split("/")[3].equals("epic")) {
+            if (taskType.equals("subtask") && pathTokens.length > 3) {
                 sendEpicsSubtasks(exchange, shouldBeId);
             }
 
