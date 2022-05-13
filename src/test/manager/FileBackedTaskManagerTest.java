@@ -37,7 +37,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void test1_shouldWriteAndReadEmptyTaskManager() throws IOException {
+    void test23_shouldWriteAndReadEmptyTaskManager() throws IOException {
         Task task = new Task("a", "a");
         getManager().createTask(task);
         getManager().removeAllTasks();
@@ -50,7 +50,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void test2_shouldWriteEpicWithoutSubtasks() throws IOException {
+    void test24_shouldWriteEpicWithoutSubtasks() throws IOException {
         EpicTask epic = new EpicTask("a", "a");
         getManager().createTask(epic);
         reader.readLine();
@@ -69,7 +69,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void test3_shouldWriteEmptyHistory() throws IOException {
+    void test25_shouldWriteEmptyHistory() throws IOException {
         Task task = new Task("a", "a");
         getManager().createTask(task);
         getManager().removeAllTasks();
@@ -80,7 +80,7 @@ class FileBackedTaskManagerTest extends TaskManagerTest<FileBackedTaskManager> {
     }
 
     @Test
-    void test4_shouldWriteAndCreateTaskTimeInAFile() throws IOException {
+    void test26_shouldWriteAndCreateTaskTimeInAFile() throws IOException {
         Task task = new Task("a", "a", TEN_O_CLOCK, Duration.ofHours(1));
         getManager().createTask(task);
         setManager(FileBackedTaskManager.loadFromFile(new File(file)));
