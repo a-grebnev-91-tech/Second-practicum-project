@@ -125,6 +125,9 @@ public class TaskHandler implements HttpHandler {
         String body = new String(exchange.getRequestBody().readAllBytes(), DEFAULT_CHARSET);
         try {
             Task task = parseBody(body, taskType);
+            if (task == null) {
+                throw new JsonParseException("Cannot parse task");
+            }
             long id = task.getID();
             if (manager.containsTask(id)) {
                 updateTask(exchange, task);

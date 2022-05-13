@@ -29,6 +29,10 @@ class HttpTaskServerTest {
     private static HttpTaskServer server;
     private static Gson gson;
     private static URI uri;
+    private static URI taskUri;
+    private static URI epicUri;
+    private static URI subtaskUri;
+    private static URI historyUri;
 
     @BeforeAll
     static void startServerAndConfigClient() throws IOException {
@@ -41,6 +45,10 @@ class HttpTaskServerTest {
                 .registerTypeAdapter(Subtask.class, new SubtaskAdapter())
                 .create();
         uri = URI.create("http://localhost:8080/tasks/");
+        taskUri = uri.resolve("task");
+        epicUri = uri.resolve("epic");
+        subtaskUri = uri.resolve("subtask");
+        historyUri = uri.resolve("history");
     }
 
     @AfterAll
@@ -51,16 +59,54 @@ class HttpTaskServerTest {
     @Test
     public void test1_serverShouldReturn204StatusCodeWhenCreatingAnyTypeOfTask()
             throws IOException, InterruptedException {
-        HttpResponse<String> taskCreateResponse = sendPostRequest(uri.resolve("task"), gson.toJson(getTask()));
+        HttpResponse<String> taskCreateResponse = sendPostRequest(taskUri, gson.toJson(getTask()));
         assertEquals(204, taskCreateResponse.statusCode(), "Creating Task is fail");
 
-        HttpResponse<String> epicCreateResponse = sendPostRequest(uri.resolve("epic"), gson.toJson(getEpicTask()));
+        HttpResponse<String> epicCreateResponse = sendPostRequest(epicUri, gson.toJson(getEpicTask()));
         assertEquals(204, epicCreateResponse.statusCode(), "Creating Epic is fail");
 
-        HttpResponse<String> subtaskCreateResponse =
-                sendPostRequest(uri.resolve("subtask"), gson.toJson(getSubtask(2)));
+        HttpResponse<String> subtaskCreateResponse = sendPostRequest(subtaskUri, gson.toJson(getSubtask(2)));
         assertEquals(204, epicCreateResponse.statusCode(), "Creating Subtask is fail");
     }
+
+    @Test
+    public void test2_serverShouldReturn422StatusCodeForBadJsonBodyToPost() throws IOException, InterruptedException {
+        HttpResponse<String> taskCreateResponse = sendPostRequest(taskUri, "{bad json}");
+        assertEquals(422, taskCreateResponse.statusCode(), "Creating Task with bad json is fail");
+
+        HttpResponse<String> epicCreateResponse = sendPostRequest(epicUri, "{bad json}");
+        assertEquals(422, epicCreateResponse.statusCode(), "Creating Epic with bad json is fail");
+
+        HttpResponse<String> subtaskCreateResponse = sendPostRequest(subtaskUri, "{bad json}");
+        assertEquals(422, subtaskCreateResponse.statusCode(), "Creating Subtask with bad json is fail");
+    }
+
+    @Test
+    public void test3_shouldReturn405StatusCodeForUnsupportedMethod() throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest
+                .newBuilder()
+                .uri(taskUri)
+                .PUT(HttpRequest.BodyPublishers.ofString(gson.toJson(getTask())))
+                .build();
+        HttpResponse<String> taskCreateResponse =client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(405, taskCreateResponse.statusCode(), "Unsupported method test is fail");
+    }
+
+    @Test
+    public void test4_shouldReturn422StatusCodeForEmptyJsonBodyForPostMethod() throws IOException, InterruptedException {
+        HttpResponse<String> emptyBodyTaskResponse = sendPostRequest(taskUri, "");
+        assertEquals(422, emptyBodyTaskResponse.statusCode(), "Status code for task is unexpected");
+
+        HttpResponse<String> emptyBodyEpicResponse = sendPostRequest(epicUri, "");
+        assertEquals(422, emptyBodyEpicResponse.statusCode(), "Status code for epic is unexpected");
+
+        HttpResponse<String> emptyBodySubtaskResponse = sendPostRequest(subtaskUri, "");
+        assertEquals(422, emptyBodySubtaskResponse.statusCode(), "Status code for subtask is " +
+                "unexpected");
+    }
+
+    @Test
+    public void test5_
 
     private Task getTask() {
         return new Task("task", "task descr", TEN_O_CLOCK, Duration.ofHours(1));
