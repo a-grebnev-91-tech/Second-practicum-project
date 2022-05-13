@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.time.DateTimeException;
+import java.util.List;
 import java.util.Map;
 
 import static webapi.HttpTaskServer.*;
@@ -40,6 +41,10 @@ public class TaskHandler implements HttpHandler {
 
             Map<String, String> queryPairs = UriParser.splitQuery(uri);
             String shouldBeId = queryPairs.get("id");
+
+            if (taskType.equals("subtask") && path.split("/")[3].equals("epic")) {
+                sendEpicsSubtasks(exchange, shouldBeId);
+            }
 
             switch (method) {
                 case "GET":
@@ -108,7 +113,10 @@ public class TaskHandler implements HttpHandler {
             return true;
         if (path.equals(EPICS_PATH) || path.equals(EPICS_PATH + "/"))
             return true;
-        return path.equals(SUBTASKS_PATH) || path.equals(SUBTASKS_PATH + "/");
+        if (path.equals(SUBTASKS_PATH) || path.equals(SUBTASKS_PATH + "/")) {
+            return true;
+        }
+        return path.equals(EPIC_SUBTASKS_PATH) || path.equals(EPIC_SUBTASKS_PATH + "/");
     }
 
     private void postTask(HttpExchange exchange, String taskType) throws IOException {
@@ -141,6 +149,21 @@ public class TaskHandler implements HttpHandler {
                 break;
         }
         return task;
+    }
+
+    private void sendEpicsSubtasks(HttpExchange exchange, String shouldBeId) throws IOException {
+        long epicId = Long.parseLong(shouldBeId);
+        List<Subtask> subtasks = manager.getEpicTaskSubtasks(epicId);
+        if (subtasks != null) {
+            String json = gson.toJson(subtasks);
+            exchange.sendResponseHeaders(200, 0);
+            try (OutputStream os = exchange.getResponseBody()) {
+                os.write(json.getBytes(DEFAULT_CHARSET));
+            }
+        } else {
+            exchange.sendResponseHeaders(404, -1);
+            exchange.close();
+        }
     }
 
     private void sendTaskById(HttpExchange exchange, String taskType, String shouldBeId) throws IOException {

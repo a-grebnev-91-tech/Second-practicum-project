@@ -16,6 +16,8 @@ public interface TaskManager {
 
     List<Subtask> getEpicTaskSubtasks(EpicTask epicTask);
 
+    List<Subtask> getEpicTaskSubtasks(Long epicTaskId);
+
     HistoryManager getHistoryManager();
     TreeSet<Task> getPrioritizedTasks();
 

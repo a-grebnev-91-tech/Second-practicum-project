@@ -91,6 +91,11 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
     @Override
+    public List<Subtask> getEpicTaskSubtasks(Long epicTaskId) {
+        return vault.getEpicTaskSubtasks(epicTaskId);
+    }
+
+    @Override
     public HistoryManager getHistoryManager() {
         return historyManager.clone();
     }

@@ -15,6 +15,7 @@ import util.web.handlers.TaskHandler;
 import util.web.json.adapters.EpicTaskAdapter;
 import util.web.json.adapters.SubtaskAdapter;
 import util.web.json.adapters.TaskAdapter;
+import webapi.kv.KVServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -25,6 +26,7 @@ public class HttpTaskServer {
     public static final Charset DEFAULT_CHARSET = Charset.forName(CHARSET_NAME);
     public static final String TASKS_PATH = "/tasks/task";
     public static final String EPICS_PATH = "/tasks/epic";
+    public static final String EPIC_SUBTASKS_PATH = "/tasks/subtask/epic";
     public static final String SUBTASKS_PATH = "/tasks/subtask";
     public static final String HISTORY_PATH = "/tasks/history";
     public static final String PRIORITIZED_PATH = "/tasks";
@@ -44,10 +46,33 @@ public class HttpTaskServer {
         HttpHandler taskHandler = new TaskHandler(manager, gson);
         server.createContext(TASKS_PATH, taskHandler);
         server.createContext(EPICS_PATH, taskHandler);
+        server.createContext(EPIC_SUBTASKS_PATH, taskHandler);
         server.createContext(SUBTASKS_PATH, taskHandler);
         server.createContext(HISTORY_PATH, new HistoryHandler(manager, gson));
         server.createContext(PRIORITIZED_PATH, new PrioritizedHandler(manager, gson));
         server.start();
         System.out.println("Server start on port " + PORT);
+    }
+
+    public void stop(int delay) {
+        server.stop(delay);
+    }
+
+//TODO del below
+        public static void main(String[] args) throws IOException {
+        new KVServer().start();
+        HttpTaskServer server = new HttpTaskServer();
+        server.setupManager();
+    }
+
+    public void setupManager() {
+        manager.createTask(new Task("a", "a"));
+        manager.createTask(new Task("aa", "aa", java.time.LocalDateTime.now(), java.time.Duration.ofHours(1)));
+        manager.createTask(new EpicTask("b", "b"));
+        manager.createTask(new EpicTask("bb", "bb"));
+        manager.createTask(new Subtask(3, "c", "c"));
+        manager.createTask(new Subtask(3, "cc", "cc"));
+        manager.getTask(1);
+        manager.getTask(2);
     }
 }

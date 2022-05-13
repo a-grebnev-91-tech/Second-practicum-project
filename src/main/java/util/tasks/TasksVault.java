@@ -81,11 +81,22 @@ public class TasksVault {
     }
 
     public List<Subtask> getEpicTaskSubtasks(EpicTask epic) {
-        ArrayList<Subtask> result = new ArrayList<>();
-        for (Long subtaskID : epic.getSubtasksID()) {
+        if (epicTasks.containsKey(epic.getID())) {
+            ArrayList<Subtask> result = new ArrayList<>();
+            for (Long subtaskID : epic.getSubtasksID()) {
                 result.add(subtasks.get(subtaskID));
+            }
+            return result;
+        } else {
+            return null;
         }
-        return result;
+    }
+
+    public List<Subtask> getEpicTaskSubtasks(Long epicId) {
+        EpicTask epic = epicTasks.get(epicId);
+        if (epic == null)
+            return null;
+        return getEpicTaskSubtasks(epic);
     }
 
     public TreeSet<Task> getPrioritizedTasks() {
