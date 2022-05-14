@@ -15,7 +15,6 @@ import util.web.handlers.TaskHandler;
 import util.web.json.adapters.EpicTaskAdapter;
 import util.web.json.adapters.SubtaskAdapter;
 import util.web.json.adapters.TaskAdapter;
-import webapi.kv.KVServer;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -30,9 +29,9 @@ public class HttpTaskServer {
     public static final String SUBTASKS_PATH = "/tasks/subtask";
     public static final String HISTORY_PATH = "/tasks/history";
     public static final String PRIORITIZED_PATH = "/tasks";
+    public static final int PORT = 8080;
     private final Gson gson;
     private final HttpServer server;
-    private final int PORT = 8080;
     private final TaskManager manager;
 
     public HttpTaskServer() throws IOException {

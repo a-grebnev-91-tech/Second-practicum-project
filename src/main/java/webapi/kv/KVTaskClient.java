@@ -8,8 +8,8 @@ import java.net.http.HttpResponse;
 
 public class KVTaskClient {
     private final HttpClient client;
-    private  URI uri;
-    private String API_TOKEN;
+    private URI uri;
+    private String apiToken;
 
     public KVTaskClient(String url) {
         client = HttpClient.newHttpClient();
@@ -22,7 +22,7 @@ public class KVTaskClient {
                 System.out.println("Unexpected status code has been received");
                 return;
             }
-            API_TOKEN = response.body();
+            apiToken = response.body();
         } catch (IOException | InterruptedException ex) {
             System.out.println(" An error occurred while executing the request. Please check the URL and try again.");
         } catch (IllegalArgumentException ex) {
@@ -31,7 +31,7 @@ public class KVTaskClient {
     }
 
     public String load(String key) throws IOException, InterruptedException {
-        URI loadUri = uri.resolve("/load/" + key + "?API_TOKEN=" + API_TOKEN);
+        URI loadUri = uri.resolve("/load/" + key + "?API_TOKEN=" + apiToken);
         HttpRequest loadRequest = HttpRequest
                 .newBuilder()
                 .header("Content-Type", "application/json")
@@ -47,7 +47,7 @@ public class KVTaskClient {
     }
 
     public void put(String key, String json) throws IOException, InterruptedException {
-        URI saveUri = uri.resolve("/save/" + key + "?API_TOKEN=" + API_TOKEN);
+        URI saveUri = uri.resolve("/save/" + key + "?API_TOKEN=" + apiToken);
         HttpRequest putRequest = HttpRequest
                 .newBuilder()
                 .header("Content-Type", "application/json")
