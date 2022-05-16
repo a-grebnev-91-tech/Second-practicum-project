@@ -109,14 +109,16 @@ public class HttpTaskManagerConverter {
 
         HistoryManagerUpdater.updateHistoryManager(historyManager, historyIds, tasks, epics, subtasks);
 
-        updateManager(vault, validator, historyManager);
+        updateManager(id, vault, validator, historyManager);
     }
 
-    private void updateManager(TasksVault vault, TaskValidator validator, HistoryManager history) {
+    private void updateManager(long lastId, TasksVault vault, TaskValidator validator, HistoryManager history) {
+        Field id = getManagerField("id");
         Field tasksVault = getManagerField("vault");
         Field taskValidator = getManagerField("validator");
         Field historyManager = getManagerField("historyManager");
         try {
+            id.set(manager, lastId);
             tasksVault.set(manager, vault);
             taskValidator.set(manager, validator);
             historyManager.set(manager, history);
