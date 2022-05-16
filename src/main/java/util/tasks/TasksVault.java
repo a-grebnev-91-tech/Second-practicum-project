@@ -10,7 +10,7 @@ public class TasksVault {
 
     private final Comparator<Task> timeComparator
             = Comparator.comparing(
-                    Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getID);
+            Task::getStartTime, Comparator.nullsLast(Comparator.naturalOrder())).thenComparing(Task::getID);
     private final Map<Long, EpicTask> epicTasks;
     private final TreeSet<Task> prioritizedTasks;
     private final Map<Long, Subtask> subtasks;
@@ -41,7 +41,6 @@ public class TasksVault {
                 break;
             case EPIC:
                 EpicTask epic = (EpicTask) task;
-                epic.setTime(null, null);
                 epic.setStatus(TaskStatus.NEW);
                 epicTasks.put(currentID, epic);
                 break;
@@ -49,6 +48,7 @@ public class TasksVault {
                 Subtask subtask = (Subtask) task;
                 subtasks.put(currentID, subtask);
                 addSubtaskToEpic(subtask);
+                updatePrioritizedTasks();
         }
         prioritizedTasks.add(task);
     }
@@ -255,5 +255,13 @@ public class TasksVault {
 
     private void updateEpicStatus(Long id) {
         updateEpicStatus(epicTasks.get(id));
+    }
+
+    private void updatePrioritizedTasks() {
+        TreeSet<Task> trv = new TreeSet<>(prioritizedTasks);
+        prioritizedTasks.clear();
+        for (Task task : trv) {
+            prioritizedTasks.add(task);
+        }
     }
 }
