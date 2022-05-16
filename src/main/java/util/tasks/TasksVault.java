@@ -42,6 +42,7 @@ public class TasksVault {
             case EPIC:
                 EpicTask epic = (EpicTask) task;
                 epic.setTime(null, null);
+                epic.setStatus(TaskStatus.NEW);
                 epicTasks.put(currentID, epic);
                 break;
             case SUBTASK:
